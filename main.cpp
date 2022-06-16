@@ -47,10 +47,14 @@ static void glfw_error_callback(int error, const char* description) {
  * @param text Char array of text to be sent
  * @return true if successfully sent
  */
-bool handleSend(char* text) {
+bool handleSend(char* text, chatHistory* history) {
     // TODO: Replace with desired behavior
     std::cout << "Send button pressed with text contents: " << text
               << std::endl;
+
+    // TODO: Probably want to only add to chat history once the message has been
+    // sent. Also don't hardcode "Me" as the sender
+    history->addMessage(text, "Me");
 
     // Clear text input area
     strncpy(text, "", TEXT_MESSAGE_SIZE);
@@ -64,7 +68,7 @@ bool handleSend(char* text) {
  *
  * @return int Return status to be returned in main()
  */
-int runImgui(chatHistory chatHistoryVar) {
+int runImgui(chatHistory history) {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit()) return 1;
@@ -192,7 +196,7 @@ int runImgui(chatHistory chatHistoryVar) {
             // TODO: Format chat history
             ImGui::Dummy(ImVec2(0, ImGui::GetContentRegionAvail().y));
 
-            for (chatMessage message : chatHistoryVar.getChatHistory()) {
+            for (chatMessage message : history.getChatHistory()) {
                 ImGui::Spacing();
                 ImGui::TextWrapped(message.getSender().c_str());
                 ImGui::TextWrapped(("    " + message.getMessage()).c_str());
@@ -227,7 +231,7 @@ int runImgui(chatHistory chatHistoryVar) {
                                           ImVec2(-FLT_MIN, TEXTBOX_HEIGHT),
                                           input_flags) ||
                 ImGui::Button("Send")) {
-                justSent = handleSend(text);
+                justSent = handleSend(text, &history);
             };
 
             ImGui::End();
