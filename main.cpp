@@ -135,6 +135,7 @@ int runImgui() {
     // Our state
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     bool justSent = true;
+    bool newMessage = true;
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -178,6 +179,20 @@ int runImgui() {
                 ImVec2(0, ImGui::GetContentRegionAvail().y - TEXTBOX_HEIGHT -
                               27),  // 27 for send button
                 true, window_flags);
+
+            // TODO: Format chat history
+            ImGui::TextWrapped(
+                "Some really old message and then a dummy bit of blank space");
+            ImGui::Dummy(ImVec2(0, ImGui::GetContentRegionAvail().y));
+            ImGui::TextWrapped("Some test text");
+            ImGui::TextWrapped("Some other test text");
+
+            // TODO: Revise as newMessage is updated in the future; probably
+            // need to move setting newMessage to elsewhere in the code
+            if (newMessage || justSent) {
+                ImGui::SetScrollHereY(1.0f);
+                newMessage = false;
+            }
 
             ImGui::EndChild();
             ImGui::PopStyleVar();
