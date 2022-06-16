@@ -17,6 +17,9 @@
 #endif
 #include <GLFW/glfw3.h>  // Will drag system OpenGL headers
 
+#include "chatHistory.h"
+#include "chatMessage.h"
+
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to
 // maximize ease of testing and compatibility with old VS compilers. To link
 // with VS2010-era libraries, VS2015+ requires linking with
@@ -61,7 +64,7 @@ bool handleSend(char* text) {
  *
  * @return int Return status to be returned in main()
  */
-int runImgui() {
+int runImgui(chatHistory chatHistoryVar) {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit()) return 1;
@@ -187,11 +190,13 @@ int runImgui() {
                 true, window_flags);
 
             // TODO: Format chat history
-            ImGui::TextWrapped(
-                "Some really old message and then a dummy bit of blank space");
             ImGui::Dummy(ImVec2(0, ImGui::GetContentRegionAvail().y));
-            ImGui::TextWrapped("Some test text");
-            ImGui::TextWrapped("Some other test text");
+
+            for (chatMessage message : chatHistoryVar.getChatHistory()) {
+                ImGui::Spacing();
+                ImGui::TextWrapped(message.getSender().c_str());
+                ImGui::TextWrapped(("    " + message.getMessage()).c_str());
+            }
 
             // TODO: Revise as newMessage is updated in the future; probably
             // need to move setting newMessage to elsewhere in the code
@@ -253,4 +258,12 @@ int runImgui() {
     return 0;
 }
 
-int main(int, char**) { return runImgui(); }
+int main(int, char**) {
+    chatHistory testHist;
+
+    testHist.addMessage("New test message", "Alice");
+    testHist.addMessage("Second test message", "Alice");
+    testHist.addMessage("Third test message", "Bob");
+
+    return runImgui(testHist);
+}
