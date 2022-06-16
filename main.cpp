@@ -152,7 +152,7 @@ int runImgui() {
          * @brief Show basic chat window
          */
         {
-            int TEXTBOX_HEIGHT = ImGui::GetTextLineHeight() * 8;
+            int TEXTBOX_HEIGHT = ImGui::GetTextLineHeight() * 4;
 
             // Make window take up full system window
             ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -178,12 +178,16 @@ int runImgui() {
             // Initial text
             static char text[1024 * 16] = "";
 
-            // Add text input area
-            ImGui::InputTextMultiline("##source", text, IM_ARRAYSIZE(text),
-                                      ImVec2(-FLT_MIN, TEXTBOX_HEIGHT));
+            // Text input area flags
+            ImGuiInputTextFlags input_flags =
+                ImGuiInputTextFlags_EnterReturnsTrue |
+                ImGuiInputTextFlags_CtrlEnterForNewLine;
 
-            // Send button
-            if (ImGui::Button("Send")) {
+            // Send button and text input area
+            if (ImGui::Button("Send") ||
+                ImGui::InputTextMultiline("##source", text, IM_ARRAYSIZE(text),
+                                          ImVec2(-FLT_MIN, TEXTBOX_HEIGHT),
+                                          input_flags)) {
                 handleSend(text);
             };
 
