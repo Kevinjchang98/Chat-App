@@ -39,9 +39,11 @@ static void glfw_error_callback(int error, const char* description) {
  * @param text Char array of text to be sent
  */
 void handleSend(char* text) {
+    // TODO: Replace with desired behavior
     std::cout << "Send button pressed with text contents: " << text
               << std::endl;
 
+    // Clear text input area
     strncpy(text, "", 1024 * 16);
 }
 
