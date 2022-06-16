@@ -32,6 +32,22 @@ static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
+/**
+ * @brief Function to handle sending the chat message
+ * TODO: Currently just cout's the message
+ *
+ * @param text Char array of text to be sent
+ */
+void handleSend(char* text) {
+    std::cout << "Send button pressed with text contents: " << text
+              << std::endl;
+}
+
+/**
+ * @brief Main ImGUI loop
+ *
+ * @return int Return status to be returned in main()
+ */
 int runImgui() {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
@@ -146,10 +162,8 @@ int runImgui() {
                 ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16));
 
             // Send button
-            // TODO: Currently just cout's contents
             if (ImGui::Button("Send")) {
-                std::cout << "Send button pressed with text contents: " << text
-                          << std::endl;
+                handleSend(text);
             };
 
             ImGui::End();
