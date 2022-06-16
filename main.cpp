@@ -209,6 +209,8 @@ int runImgui() {
 
     glfwDestroyWindow(window);
     glfwTerminate();
+
+    return 0;
 }
 
 int main(int, char**) { return runImgui(); }
