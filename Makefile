@@ -84,7 +84,7 @@ endif
 
 all: $(EXE)
 	@echo Build complete for $(ECHO_MESSAGE)
-	# Probably a better way to do this, but this works for now
+# Probably a better way to do this, but this works for now
 	rm -rf build
 	mkdir -p build
 	find . -name "*.o" -exec mv {} ./build \;
