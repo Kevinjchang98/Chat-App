@@ -37,14 +37,18 @@ static void glfw_error_callback(int error, const char* description) {
  * TODO: Currently just cout's the message
  *
  * @param text Char array of text to be sent
+ * @return true if successfully sent
  */
-void handleSend(char* text) {
+bool handleSend(char* text) {
     // TODO: Replace with desired behavior
     std::cout << "Send button pressed with text contents: " << text
               << std::endl;
 
     // Clear text input area
     strncpy(text, "", 1024 * 16);
+
+    // If successfully sent return true
+    return true;
 }
 
 /**
@@ -130,6 +134,7 @@ int runImgui() {
 
     // Our state
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    bool justSent = true;
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -185,12 +190,18 @@ int runImgui() {
                 ImGuiInputTextFlags_EnterReturnsTrue |
                 ImGuiInputTextFlags_CtrlEnterForNewLine;
 
-            // Send button and text input area
-            if (ImGui::Button("Send") ||
-                ImGui::InputTextMultiline("##source", text, IM_ARRAYSIZE(text),
+            // Refocus text area if text was just sent
+            if (justSent) {
+                ImGui::SetKeyboardFocusHere();
+                justSent = false;
+            }
+
+            // Create text area and send button
+            if (ImGui::InputTextMultiline("##source", text, IM_ARRAYSIZE(text),
                                           ImVec2(-FLT_MIN, TEXTBOX_HEIGHT),
-                                          input_flags)) {
-                handleSend(text);
+                                          input_flags) ||
+                ImGui::Button("Send")) {
+                justSent = handleSend(text);
             };
 
             ImGui::End();
