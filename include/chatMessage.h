@@ -18,12 +18,12 @@ class chatMessage {
 
     std::string getMessage();
     std::string getSender();
-    std::time_t getTimestamp();
+    // std::time_t getTimestamp();
 
    private:
     std::string message;
     std::string sender;
-    std::time_t timestamp;
+    // std::time_t timestamp;
 };
 
 #endif
