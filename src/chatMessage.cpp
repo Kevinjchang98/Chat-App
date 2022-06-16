@@ -22,7 +22,7 @@ void chatMessage::setMessage(std::string inMessage, std::string inSender) {
 
 void chatMessage::setSender(std::string input) { sender = input; }
 
-void chatMessage::setTime() { timestamp = time(NULL); }
+// void chatMessage::setTime() { timestamp = time(NULL); }
 
 std::string chatMessage::getMessage() { return message; }
 
