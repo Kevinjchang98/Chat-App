@@ -28,6 +28,11 @@
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
 
+// Global variables
+constexpr int TEXT_MESSAGE_SIZE = 1024 * 8;
+constexpr int INIT_WINDOW_WIDTH = 400;
+constexpr int INIT_WINDOW_HEIGHT = 720;
+
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
@@ -45,7 +50,7 @@ bool handleSend(char* text) {
               << std::endl;
 
     // Clear text input area
-    strncpy(text, "", 1024 * 16);
+    strncpy(text, "", TEXT_MESSAGE_SIZE);
 
     // If successfully sent return true
     return true;
@@ -85,7 +90,8 @@ int runImgui() {
 #endif
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(400, 720, "Chat app", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT,
+                                          "Chat app", NULL, NULL);
     if (window == NULL) return 1;
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);  // Enable vsync
@@ -198,7 +204,7 @@ int runImgui() {
             ImGui::PopStyleVar();
 
             // Initial text
-            static char text[1024 * 16] = "";
+            char text[TEXT_MESSAGE_SIZE] = "";
 
             // Text input area flags
             ImGuiInputTextFlags input_flags =
