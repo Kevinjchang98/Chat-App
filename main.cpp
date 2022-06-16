@@ -32,12 +32,12 @@ static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-int main(int, char**) {
+int runImgui() {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit()) return 1;
 
-        // Decide GL+GLSL versions
+// Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
     // GL ES 2.0 + GLSL 100
     const char* glsl_version = "#version 100";
@@ -61,8 +61,7 @@ int main(int, char**) {
 #endif
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(
-        1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "Chat app", NULL, NULL);
     if (window == NULL) return 1;
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);  // Enable vsync
@@ -177,6 +176,6 @@ int main(int, char**) {
 
     glfwDestroyWindow(window);
     glfwTerminate();
-
-    return 0;
 }
+
+int main(int, char**) { return runImgui(); }
