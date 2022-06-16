@@ -77,7 +77,7 @@ int runImgui() {
 #endif
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Chat app", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(400, 720, "Chat app", NULL, NULL);
     if (window == NULL) return 1;
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);  // Enable vsync
@@ -150,16 +150,35 @@ int runImgui() {
          * @brief Show basic chat window
          */
         {
+            int TEXTBOX_HEIGHT = ImGui::GetTextLineHeight() * 8;
+
+            // Make window take up full system window
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+            ImGui::SetNextWindowSize(io.DisplaySize);
+
             // Create window
-            ImGui::Begin("Text input window");
+            // TODO: Probably rename this to currently connected IP or something
+            ImGui::Begin("Chat box");
+
+            // Child window scrollable area
+            ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
+
+            ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
+            ImGui::BeginChild(
+                "ChildR",
+                ImVec2(0, ImGui::GetContentRegionAvail().y - TEXTBOX_HEIGHT -
+                              27),  // 27 for send button
+                true, window_flags);
+
+            ImGui::EndChild();
+            ImGui::PopStyleVar();
 
             // Initial text
             static char text[1024 * 16] = "";
 
             // Add text input area
-            ImGui::InputTextMultiline(
-                "##source", text, IM_ARRAYSIZE(text),
-                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16));
+            ImGui::InputTextMultiline("##source", text, IM_ARRAYSIZE(text),
+                                      ImVec2(-FLT_MIN, TEXTBOX_HEIGHT));
 
             // Send button
             if (ImGui::Button("Send")) {
