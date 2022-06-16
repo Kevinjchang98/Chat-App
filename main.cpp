@@ -41,6 +41,8 @@ static void glfw_error_callback(int error, const char* description) {
 void handleSend(char* text) {
     std::cout << "Send button pressed with text contents: " << text
               << std::endl;
+
+    strncpy(text, "", 1024 * 16);
 }
 
 /**
