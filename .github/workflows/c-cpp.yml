@@ -9,11 +9,29 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            compiler: g++-10
+            target: Linux
+
+          - os: macos-latest
+            compiler: g++-10
+            target: Macos
 
     steps:
     - uses: actions/checkout@v3
-    - name: glfw
+    - name: glfw-ubuntu
+      if: ${{ matrix.os == 'ubuntu-latest }}
       run: sudo apt-get install libglfw3-dev
+      
+    - name: glfw-mac
+      if: ${{ matrix.os == 'macos-latest' }}
+      run: brew install glfw
+      
     - name: make
       run: make
