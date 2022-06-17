@@ -26,7 +26,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: glfw-ubuntu
-      if: ${{ matrix.os == 'ubuntu-latest }}
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       run: sudo apt-get install libglfw3-dev
       
     - name: glfw-mac
