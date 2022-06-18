@@ -14,7 +14,7 @@
 #CXX = g++
 #CXX = clang++
 
-EXE = chat_app
+EXE_BASE = chat_app
 IMGUI_DIR = ../..
 SOURCES = main.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
@@ -46,6 +46,8 @@ ifeq ($(UNAME_S), Linux) #LINUX
 
 	CXXFLAGS += `pkg-config --cflags glfw3`
 	CFLAGS = $(CXXFLAGS)
+
+	EXE = $(EXE_BASE)
 endif
 
 ifeq ($(UNAME_S), Darwin) #APPLE
@@ -57,6 +59,8 @@ ifeq ($(UNAME_S), Darwin) #APPLE
 
 	CXXFLAGS += -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include
 	CFLAGS = $(CXXFLAGS)
+
+	EXE = $(EXE_BASE).app
 endif
 
 ifeq ($(OS), Windows_NT)
@@ -65,6 +69,8 @@ ifeq ($(OS), Windows_NT)
 
 	CXXFLAGS += `pkg-config --cflags glfw3`
 	CFLAGS = $(CXXFLAGS)
+
+	EXE = $(EXE_BASE).exe
 endif
 
 ##---------------------------------------------------------------------
@@ -89,7 +95,7 @@ all: $(EXE)
 	rm -rf build
 	mkdir -p build
 	find . -name "*.o" -exec mv {} ./build \;
-	mv chat_app ./build
+	mv chat_app.* ./build
 
 $(EXE): $(OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
