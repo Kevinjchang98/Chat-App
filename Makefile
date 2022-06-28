@@ -95,7 +95,7 @@ all: $(EXE)
 	rm -rf build
 	mkdir -p build
 	find . -name "*.o" -exec mv {} ./build \;
-	mv chat_app.* ./build
+	mv $(EXE) ./build
 
 $(EXE): $(OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
