@@ -179,29 +179,37 @@ int runImgui(chatHistory history) {
         ImGui::NewFrame();
 
         /**
-         * @brief Show basic chat window
+         * @brief Shows connection window if not connected, otherwise show basic
+         * chat window
          */
         if (!isConnected) {
-            ImGui::SetNextWindowPos(ImVec2(0, 0));
-            ImGui::SetNextWindowSize(io.DisplaySize);
-
-            ImGui::Begin("Connect");
-
+            // Init variables for IP address and port number
             static char ipAddress[64] = "";
             static char port[8] = "";
 
+            // Make window take up full system window
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+            ImGui::SetNextWindowSize(io.DisplaySize);
+
+            // Create a window
+            ImGui::Begin("Connect");
+
+            // Create a checkbox for whether to run server or client setup
             ImGui::Checkbox("Server", &isServer);
 
+            // Input box for IP Address
             ImGui::InputText("IP Address", ipAddress, 64,
                              ImGuiInputTextFlags_CharsDecimal);
 
+            // Input box for Port number
             ImGui::InputText("Port", port, 64,
                              ImGuiInputTextFlags_CharsDecimal);
 
+            // Button to connect
             if (ImGui::Button("Connect")) {
                 std::cout << "Connect button clicked" << std::endl;
 
-                // Get runtype
+                // TODO: Simplify into tertiary and remove cout
                 if (isServer) {
                     std::cout << "Server set up" << std::endl;
                     // setupServer();
@@ -211,6 +219,7 @@ int runImgui(chatHistory history) {
                     // setupClient();
                 }
 
+                // TODO: Only set isConnected if setup completes successfully
                 isConnected = true;
             };
 
