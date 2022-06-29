@@ -17,6 +17,8 @@
 #endif
 #include <GLFW/glfw3.h>  // Will drag system OpenGL headers
 
+#include <thread>
+
 // Socket programming
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -394,5 +396,9 @@ int main() {
     // Initialize chat history
     chatHistory history;
 
-    return runImgui(history);
+    std::thread imGuiThread(runImgui, history);
+
+    imGuiThread.join();
+
+    return 0;
 }
