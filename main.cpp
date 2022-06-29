@@ -27,7 +27,6 @@
 #include "chatHistory.h"
 #include "chatMessage.h"
 
-#define MAX 1500
 #define PORT 3333
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to
@@ -346,6 +345,8 @@ setupClient() {
 
 int main(int, char**) {
     chatHistory testHist;
+
+    // this better be easier
 
     testHist.addMessage("New test message", "Alice");
     testHist.addMessage("Second test message", "Alice");
