@@ -70,6 +70,81 @@ bool handleSend(char* text, chatHistory* history) {
     return true;
 }
 
+// Functions to set up connnection
+void setupServer(int port) {
+    int server = 0, client = 0, length = 0;
+    struct sockaddr_in serverAddr, clientAddr;
+
+    server = socket(AF_INET, SOCK_STREAM, 0);
+    if (server == -1) {
+        printf("Socket creation failed...\n");
+        exit(0);
+    } else
+        printf("Socket successfully created...\n");
+    bzero(&serverAddr, sizeof(serverAddr));
+
+    /* Assign IP and Port number */
+    serverAddr.sin_family = AF_INET;          // Default is IPV4
+    serverAddr.sin_addr.s_addr = INADDR_ANY;  // LAN or Wifi
+    serverAddr.sin_port = htons(port);  // hton translates short integer from
+                                        // host byte order to network byte order
+
+    /* bind server socket to ip address and port number */
+    // descriptor, pointer to structure, and size of structure (fill address to
+    // where should bind)
+    bind(server, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+
+    /* Listens for new client */
+    listen(server, 0);
+    std::cout << "Listening for incoming connections..." << std::endl;
+    length = sizeof(clientAddr);
+
+    /* Server accepts message from client side and returns client socket
+     * descriptor */
+    client = accept(server, (struct sockaddr*)&clientAddr,
+                    (socklen_t*)&length);  // Check to see if there's a better
+                                           // way instead of current casting
+    std::cout << "Client connected!" << std::endl;
+
+    // copies a single character for a specified number of time to an object
+    // memset(buffer, 0, sizeof(buffer));
+    /* Call chat function */
+    // chat(client);
+
+    /* Close socket connection for either server/client descriptor */
+    close(client);
+    std::cout << "Client disconnected" << std::endl;
+}
+
+void setupClient(std::string address, int port) {
+    int serverSock = 0, clientSock = 0;
+    struct sockaddr_in serverAddr, clientAddr;
+
+    /* Create socket */
+    serverSock = socket(AF_INET, SOCK_STREAM, 0);
+    if (serverSock == -1) {
+        printf("socket creation failed...\n");
+        exit(0);
+    } else
+        printf("Socket successfully created..\n");
+    bzero(&serverAddr, sizeof(serverAddr));
+
+    /* Assign IP and Port number */
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = inet_addr(address.c_str());
+    serverAddr.sin_port = htons(port);
+
+    connect(serverSock, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+    std::cout << "Connected to server!" << std::endl;
+
+    /* Chat function */
+    // chat(serverSock);
+
+    /* Close socket */
+    close(serverSock);
+    std::cout << "Socket closed." << std::endl;
+}
+
 /**
  * @brief Main ImGUI loop
  *
@@ -212,7 +287,7 @@ int runImgui(chatHistory history) {
                 // TODO: Simplify into tertiary and remove cout
                 if (isServer) {
                     std::cout << "Server set up" << std::endl;
-                    // setupServer();
+                    // setupServer(std::stoi(port));
                 } else {
                     std::cout << "Client set up" << std::endl;
                     ;
@@ -313,81 +388,6 @@ int runImgui(chatHistory history) {
     glfwTerminate();
 
     return 0;
-}
-
-// Functions to set up connnection
-void setupServer(int port) {
-    int server = 0, client = 0, length = 0;
-    struct sockaddr_in serverAddr, clientAddr;
-
-    server = socket(AF_INET, SOCK_STREAM, 0);
-    if (server == -1) {
-        printf("Socket creation failed...\n");
-        exit(0);
-    } else
-        printf("Socket successfully created...\n");
-    bzero(&serverAddr, sizeof(serverAddr));
-
-    /* Assign IP and Port number */
-    serverAddr.sin_family = AF_INET;          // Default is IPV4
-    serverAddr.sin_addr.s_addr = INADDR_ANY;  // LAN or Wifi
-    serverAddr.sin_port = htons(port);  // hton translates short integer from
-                                        // host byte order to network byte order
-
-    /* bind server socket to ip address and port number */
-    // descriptor, pointer to structure, and size of structure (fill address to
-    // where should bind)
-    bind(server, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
-
-    /* Listens for new client */
-    listen(server, 0);
-    std::cout << "Listening for incoming connections..." << std::endl;
-    length = sizeof(clientAddr);
-
-    /* Server accepts message from client side and returns client socket
-     * descriptor */
-    client = accept(server, (struct sockaddr*)&clientAddr,
-                    (socklen_t*)&length);  // Check to see if there's a better
-                                           // way instead of current casting
-    std::cout << "Client connected!" << std::endl;
-
-    // copies a single character for a specified number of time to an object
-    // memset(buffer, 0, sizeof(buffer));
-    /* Call chat function */
-    // chat(client);
-
-    /* Close socket connection for either server/client descriptor */
-    close(client);
-    std::cout << "Client disconnected" << std::endl;
-}
-
-void setupClient(std::string address, int port) {
-    int serverSock = 0, clientSock = 0;
-    struct sockaddr_in serverAddr, clientAddr;
-
-    /* Create socket */
-    serverSock = socket(AF_INET, SOCK_STREAM, 0);
-    if (serverSock == -1) {
-        printf("socket creation failed...\n");
-        exit(0);
-    } else
-        printf("Socket successfully created..\n");
-    bzero(&serverAddr, sizeof(serverAddr));
-
-    /* Assign IP and Port number */
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = inet_addr(address.c_str());
-    serverAddr.sin_port = htons(port);
-
-    connect(serverSock, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
-    std::cout << "Connected to server!" << std::endl;
-
-    /* Chat function */
-    // chat(serverSock);
-
-    /* Close socket */
-    close(serverSock);
-    std::cout << "Socket closed." << std::endl;
 }
 
 int main() {
