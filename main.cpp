@@ -27,8 +27,6 @@
 #include "chatHistory.h"
 #include "chatMessage.h"
 
-#define PORT 3333
-
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to
 // maximize ease of testing and compatibility with old VS compilers. To link
 // with VS2010-era libraries, VS2015+ requires linking with
@@ -272,7 +270,7 @@ int runImgui(chatHistory history) {
 }
 
 // Functions to set up connnection
-void setupServer() {
+void setupServer(int port) {
     int server = 0, client = 0, length = 0;
     struct sockaddr_in serverAddr, clientAddr;
 
@@ -287,7 +285,7 @@ void setupServer() {
     /* Assign IP and Port number */
     serverAddr.sin_family = AF_INET;          // Default is IPV4
     serverAddr.sin_addr.s_addr = INADDR_ANY;  // LAN or Wifi
-    serverAddr.sin_port = htons(PORT);  // hton translates short integer from
+    serverAddr.sin_port = htons(port);  // hton translates short integer from
                                         // host byte order to network byte order
 
     /* bind server socket to ip address and port number */
@@ -317,7 +315,7 @@ void setupServer() {
     std::cout << "Client disconnected" << std::endl;
 }
 
-void setupClient() {
+void setupClient(std::string address, int port) {
     int serverSock = 0, clientSock = 0;
     struct sockaddr_in serverAddr, clientAddr;
 
@@ -332,8 +330,8 @@ void setupClient() {
 
     /* Assign IP and Port number */
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    serverAddr.sin_port = htons(PORT);
+    serverAddr.sin_addr.s_addr = inet_addr(address.c_str());
+    serverAddr.sin_port = htons(port);
 
     connect(serverSock, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
     std::cout << "Connected to server!" << std::endl;
@@ -346,14 +344,20 @@ void setupClient() {
     std::cout << "Socket closed." << std::endl;
 }
 
-int main(int, char**) {
-    chatHistory testHist;
+int main(int argc, char* argv[]) {
+    // Initialize chat history
+    chatHistory history;
 
-    // this better be easier
+    // Get runtype
+    if (argc > 1 && (std::strcmp(argv[1], "s") == 0 ||
+                     std::strcmp(argv[1], "server") == 0)) {
+        std::cout << "Server set up" << std::endl;
+        // setupServer();
+    } else {
+        std::cout << "Client set up" << std::endl;
+        ;
+        // setupClient();
+    }
 
-    testHist.addMessage("New test message", "Alice");
-    testHist.addMessage("Second test message", "Alice");
-    testHist.addMessage("Third test message", "Bob");
-
-    return runImgui(testHist);
+    return runImgui(history);
 }
