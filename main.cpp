@@ -156,6 +156,8 @@ int runImgui(chatHistory history) {
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     bool justSent = true;
     bool newMessage = true;
+    bool isConnected = false;
+    bool isServer = false;
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -179,7 +181,42 @@ int runImgui(chatHistory history) {
         /**
          * @brief Show basic chat window
          */
-        {
+        if (!isConnected) {
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+            ImGui::SetNextWindowSize(io.DisplaySize);
+
+            ImGui::Begin("Connect");
+
+            static char ipAddress[64] = "";
+            static char port[8] = "";
+
+            ImGui::Checkbox("Server", &isServer);
+
+            ImGui::InputText("IP Address", ipAddress, 64,
+                             ImGuiInputTextFlags_CharsDecimal);
+
+            ImGui::InputText("Port", port, 64,
+                             ImGuiInputTextFlags_CharsDecimal);
+
+            if (ImGui::Button("Connect")) {
+                std::cout << "Connect button clicked" << std::endl;
+
+                // Get runtype
+                if (isServer) {
+                    std::cout << "Server set up" << std::endl;
+                    // setupServer();
+                } else {
+                    std::cout << "Client set up" << std::endl;
+                    ;
+                    // setupClient();
+                }
+
+                isConnected = true;
+            };
+
+            ImGui::End();
+
+        } else {
             int TEXTBOX_HEIGHT = ImGui::GetTextLineHeight() * 4;
 
             // Make window take up full system window
@@ -344,20 +381,9 @@ void setupClient(std::string address, int port) {
     std::cout << "Socket closed." << std::endl;
 }
 
-int main(int argc, char* argv[]) {
+int main() {
     // Initialize chat history
     chatHistory history;
-
-    // Get runtype
-    if (argc > 1 && (std::strcmp(argv[1], "s") == 0 ||
-                     std::strcmp(argv[1], "server") == 0)) {
-        std::cout << "Server set up" << std::endl;
-        // setupServer();
-    } else {
-        std::cout << "Client set up" << std::endl;
-        ;
-        // setupClient();
-    }
 
     return runImgui(history);
 }
