@@ -321,9 +321,7 @@ void runImgui(chatHistory history) {
             ImGui::Text("Setting up connection");
 
             ImGui::End();
-        }
-
-        else {
+        } else {
             // Is connected
             int TEXTBOX_HEIGHT = ImGui::GetTextLineHeight() * 4;
 
@@ -388,6 +386,12 @@ void runImgui(chatHistory history) {
                 justSent = handleSend(text, &history);
             };
 
+            ImGui::SameLine(ImGui::GetWindowWidth() - 44);
+
+            if (ImGui::Button("Exit")) {
+                break;
+            }
+
             ImGui::End();
         }
 
@@ -405,6 +409,8 @@ void runImgui(chatHistory history) {
         glfwSwapBuffers(window);
     }
 
+    std::cout << "Main ImGUI loop ended" << std::endl;
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -414,18 +420,21 @@ void runImgui(chatHistory history) {
 }
 
 void closeConnections() {
+    std::cout << "Closing connections" << std::endl;
     close(CLIENT);
     close(SERVER_SOCK);
+    std::cout << "Connections closed" << std::endl;
 }
 
 void setupHelper() {
     while (!IS_CONNECTED) {
         if (TRY_CONNECT) {
-            std::cout << "trying to connect to port " << PORT << std::endl;
+            std::cout << "Using port " << PORT << std::endl;
 
             IS_SERVER ? setupServer(PORT) : setupClient(IP_ADDRESS, PORT);
 
             IS_CONNECTED = true;
+            return;
         }
     }
 }
