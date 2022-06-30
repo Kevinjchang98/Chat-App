@@ -46,8 +46,10 @@ constexpr int INIT_WINDOW_WIDTH = 400;
 constexpr int INIT_WINDOW_HEIGHT = 720;
 
 // Global state
-int PORT;
+int PORT = -1;
+std::string IP_ADDRESS = "";
 bool TRY_CONNECT = false;
+bool IS_SERVER = false;
 bool IS_CONNECTED = false;
 
 static void glfw_error_callback(int error, const char* description) {
@@ -157,10 +159,10 @@ void setupClient(std::string address, int port) {
  *
  * @return int Return status to be returned in main()
  */
-int runImgui(chatHistory history) {
+void runImgui(chatHistory history) {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
-    if (!glfwInit()) return 1;
+    if (!glfwInit()) return;
 
 // Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -188,7 +190,7 @@ int runImgui(chatHistory history) {
     // Create window with graphics context
     GLFWwindow* window = glfwCreateWindow(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT,
                                           "Chat app", NULL, NULL);
-    if (window == NULL) return 1;
+    if (window == NULL) return;
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);  // Enable vsync
 
@@ -266,6 +268,7 @@ int runImgui(chatHistory history) {
          */
         if (!IS_CONNECTED) {
             // Init variables for IP address and port number
+            // TODO: Probably directly change global state
             static char ipAddress[64] = "";
             static char port[8] = "";
 
@@ -291,17 +294,10 @@ int runImgui(chatHistory history) {
             if (ImGui::Button("Connect")) {
                 std::cout << "Connect button clicked" << std::endl;
 
-                // TODO: Simplify into tertiary and remove cout
-                if (isServer) {
-                    std::cout << "Server set up" << std::endl;
-                    PORT = std::stoi(port);
-                    TRY_CONNECT = true;
-                    // setupServer(std::stoi(port));
-                } else {
-                    std::cout << "Client set up" << std::endl;
-                    ;
-                    // setupClient();
-                }
+                IP_ADDRESS = ipAddress;
+                PORT = std::stoi(port);
+                IS_SERVER = isServer;
+                TRY_CONNECT = true;
             };
 
             ImGui::End();
@@ -392,8 +388,6 @@ int runImgui(chatHistory history) {
 
     glfwDestroyWindow(window);
     glfwTerminate();
-
-    return 0;
 }
 
 void setupHelper() {
@@ -401,7 +395,7 @@ void setupHelper() {
         if (TRY_CONNECT) {
             std::cout << "trying to connect to port " << PORT << std::endl;
 
-            setupServer(PORT);
+            IS_SERVER ? setupServer(PORT) : setupClient(IP_ADDRESS, PORT);
 
             IS_CONNECTED = true;
         }
@@ -412,16 +406,12 @@ int main() {
     // Initialize chat history
     chatHistory history;
 
-    // std::cout << "a" << std::endl;
-    // std::thread imGuiThread(runImgui, history);
-
-    // std::cout << "b" << std::endl;
-    // imGuiThread.join();
-
+    // Start setupHelper
     std::thread setupThread(setupHelper);
 
     runImgui(history);
 
+    // Join setupHelper
     setupThread.join();
 
     return 0;
