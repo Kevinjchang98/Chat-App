@@ -351,8 +351,9 @@ void runImgui(chatHistory history) {
 
             for (chatMessage message : history.getChatHistory()) {
                 ImGui::Spacing();
-                ImGui::TextWrapped(message.getSender().c_str());
-                ImGui::TextWrapped(("    " + message.getMessage()).c_str());
+                ImGui::TextWrapped("%s", message.getSender().c_str());
+                ImGui::TextWrapped("%s",
+                                   ("    " + message.getMessage()).c_str());
             }
 
             // TODO: Revise as newMessage is updated in the future; probably
