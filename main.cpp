@@ -266,7 +266,9 @@ void runImgui(chatHistory history) {
          * @brief Shows connection window if not connected, otherwise show
          * basic chat window
          */
-        if (!IS_CONNECTED) {
+        if (!IS_CONNECTED && !TRY_CONNECT) {
+            // Initial connection screen
+
             // Init variables for IP address and port number
             // TODO: Probably directly change global state
             static char ipAddress[64] = "";
@@ -302,7 +304,21 @@ void runImgui(chatHistory history) {
 
             ImGui::End();
 
-        } else {
+        } else if (TRY_CONNECT && !IS_CONNECTED) {
+            // Is loading
+
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+            ImGui::SetNextWindowSize(io.DisplaySize);
+
+            ImGui::Begin("Connecting");
+
+            ImGui::Text("Setting up connection");
+
+            ImGui::End();
+        }
+
+        else {
+            // Is connected
             int TEXTBOX_HEIGHT = ImGui::GetTextLineHeight() * 4;
 
             // Make window take up full system window
