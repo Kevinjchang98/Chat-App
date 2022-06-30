@@ -68,6 +68,7 @@ static void glfw_error_callback(int error, const char* description) {
  * TODO: Currently just cout's the message
  *
  * @param text Char array of text to be sent
+ * @param history The chatlog as a chatHistory*
  * @return true if successfully sent
  */
 bool handleSend(char* text, chatHistory* history) {
@@ -86,7 +87,11 @@ bool handleSend(char* text, chatHistory* history) {
     return true;
 }
 
-// Functions to set up connnection
+/**
+ * @brief Sets up this instance as a server. Attempts to use the given port
+ *
+ * @param port Port to use given as an int
+ */
 void setupServer(int port) {
     int length = 0;
     struct sockaddr_in serverAddr, clientAddr;
@@ -132,6 +137,13 @@ void setupServer(int port) {
     // std::cout << "Client disconnected" << std::endl;
 }
 
+/**
+ * @brief Sets up this instance as a client. Attempts to connect to given IP
+ * address and port
+ *
+ * @param address Address to connect to given as string
+ * @param port Port to use given as int
+ */
 void setupClient(std::string address, int port) {
     struct sockaddr_in serverAddr, clientAddr;
 
@@ -162,8 +174,6 @@ void setupClient(std::string address, int port) {
 
 /**
  * @brief Main ImGUI loop
- *
- * @return int Return status to be returned in main()
  */
 void runImgui(chatHistory history) {
     // Setup window
@@ -419,6 +429,10 @@ void runImgui(chatHistory history) {
     glfwTerminate();
 }
 
+/**
+ * @brief Closes client and server connections
+ * TODO: Close the appropriate connection instead of attempting to close both
+ */
 void closeConnections() {
     std::cout << "Closing connections" << std::endl;
     close(CLIENT);
@@ -426,6 +440,11 @@ void closeConnections() {
     std::cout << "Connections closed" << std::endl;
 }
 
+/**
+ * @brief Runs the appropriate setup method for server or client depending on
+ * option chosen in gui. Constantly checks the TRY_CONNECT bool until it's time
+ * to attempt a setup
+ */
 void setupHelper() {
     while (!IS_CONNECTED) {
         if (TRY_CONNECT) {
