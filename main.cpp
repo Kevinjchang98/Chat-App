@@ -72,50 +72,83 @@ static void glfw_error_callback(int error, const char* description) {
  * @return true if successfully sent
  */
 bool handleSend(char* text, chatHistory* history) {
-    // TODO: Replace with desired behavior
-    std::cout << "Send button pressed with text contents: " << text
-              << std::endl;
+    if (IS_SERVER) {
+        // Server send behavior
 
-    // Send buffer to client */
-    write(SERVER, text, sizeof(text));
+        // TODO: Replace with desired behavior
+        std::cout << "Server send button pressed with text contents: " << text
+                  << std::endl;
 
-    // TODO: Probably want to only add to chat history once the message has been
-    // sent. Also don't hardcode "Me" as the sender
-    history->addMessage(text, "Me");
+        // Send buffer to client */
+        write(SERVER, text, sizeof(text));
 
-    // Clear text input area
-    strncpy(text, "", TEXT_MESSAGE_SIZE);
+        // TODO: Probably want to only add to chat history once the message has
+        // been sent. Also don't hardcode "Me" as the sender
+        history->addMessage(text, "Me");
 
-    // If successfully sent return true
-    return true;
+        // Clear text input area
+        strncpy(text, "", TEXT_MESSAGE_SIZE);
+
+        // If successfully sent return true
+        return true;
+    } else {
+        // Client send behavior
+
+        // TODO: Replace with desired behavior
+        std::cout << "Client send button pressed with text contents: " << text
+                  << std::endl;
+
+        // Send buffer to client */
+        // TODO: Update this
+        // send(CLIENT, text, sizeof(text));
+
+        // TODO: Probably want to only add to chat history once the message has
+        // been sent. Also don't hardcode "Me" as the sender
+        history->addMessage(text, "Me");
+
+        // Clear text input area
+        strncpy(text, "", TEXT_MESSAGE_SIZE);
+
+        // If successfully sent return true
+        return true;
+    }
 }
 
-//void chat(int server) {
-//    char buffer[1500] = { 0 };
-//    int n;
+std::string handleRead() {
+    if (IS_SERVER) {
+        char buffer[1500] = {0};
+        read(SERVER, buffer, sizeof(buffer));
+
+        std::cout << std::string(buffer) << std::endl;
+    }
+}
+
+// void chat(int server) {
+//     char buffer[1500] = { 0 };
+//     int n;
 //
-//    /* Infinite loop for chat */
-//    while (true) {
-//        bzero(buffer, MAX);
-//        // Read message from client and copy it in buffer
-//        read(server, buffer, sizeof(buffer));
-//        // Print buffer which contains client content
-//        printf("From client: %s\t From server : ", buffer);
-//        bzero(buffer, MAX);
-//        n = 0;
-//        /* Copy server message in buffer */
-//        while ((buffer[n++] = getchar()) != '\n');
+//     /* Infinite loop for chat */
+//     while (true) {
+//         bzero(buffer, MAX);
+//         // Read message from client and copy it in buffer
+//         read(server, buffer, sizeof(buffer));
+//         // Print buffer which contains client content
+//         printf("From client: %s\t From server : ", buffer);
+//         bzero(buffer, MAX);
+//         n = 0;
+//         /* Copy server message in buffer */
+//         while ((buffer[n++] = getchar()) != '\n');
 //
-//        /* Send buffer to client */
-//        write(server, buffer, sizeof(buffer));
+//         /* Send buffer to client */
+//         write(server, buffer, sizeof(buffer));
 //
-//        /* If msg contains "Exit" then server exit and chat ended */
-//        if (strncmp("exit", buffer, 4) == 0) {
-//            printf("Server Exit...\n");
-//            break;
-//        }
-//    }
-//}
+//         /* If msg contains "Exit" then server exit and chat ended */
+//         if (strncmp("exit", buffer, 4) == 0) {
+//             printf("Server Exit...\n");
+//             break;
+//         }
+//     }
+// }
 //
 
 /**
