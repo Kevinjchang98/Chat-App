@@ -76,6 +76,9 @@ bool handleSend(char* text, chatHistory* history) {
     std::cout << "Send button pressed with text contents: " << text
               << std::endl;
 
+    // Send buffer to client */
+    write(SERVER, text, sizeof(text));
+
     // TODO: Probably want to only add to chat history once the message has been
     // sent. Also don't hardcode "Me" as the sender
     history->addMessage(text, "Me");
@@ -86,6 +89,34 @@ bool handleSend(char* text, chatHistory* history) {
     // If successfully sent return true
     return true;
 }
+
+//void chat(int server) {
+//    char buffer[1500] = { 0 };
+//    int n;
+//
+//    /* Infinite loop for chat */
+//    while (true) {
+//        bzero(buffer, MAX);
+//        // Read message from client and copy it in buffer
+//        read(server, buffer, sizeof(buffer));
+//        // Print buffer which contains client content
+//        printf("From client: %s\t From server : ", buffer);
+//        bzero(buffer, MAX);
+//        n = 0;
+//        /* Copy server message in buffer */
+//        while ((buffer[n++] = getchar()) != '\n');
+//
+//        /* Send buffer to client */
+//        write(server, buffer, sizeof(buffer));
+//
+//        /* If msg contains "Exit" then server exit and chat ended */
+//        if (strncmp("exit", buffer, 4) == 0) {
+//            printf("Server Exit...\n");
+//            break;
+//        }
+//    }
+//}
+//
 
 /**
  * @brief Sets up this instance as a server. Attempts to use the given port
