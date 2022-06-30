@@ -45,12 +45,19 @@ constexpr int TEXT_MESSAGE_SIZE = 1024 * 8;
 constexpr int INIT_WINDOW_WIDTH = 400;
 constexpr int INIT_WINDOW_HEIGHT = 720;
 
-// Global state
 int PORT = -1;
 std::string IP_ADDRESS = "";
 bool TRY_CONNECT = false;
 bool IS_SERVER = false;
 bool IS_CONNECTED = false;
+
+// If being set up as server
+int SERVER = 0;
+int CLIENT = 0;
+
+// If being set up as client
+int SERVER_SOCK = 0;
+int CLIENT_SOCK = 0;
 
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -81,11 +88,11 @@ bool handleSend(char* text, chatHistory* history) {
 
 // Functions to set up connnection
 void setupServer(int port) {
-    int server = 0, client = 0, length = 0;
+    int length = 0;
     struct sockaddr_in serverAddr, clientAddr;
 
-    server = socket(AF_INET, SOCK_STREAM, 0);
-    if (server == -1) {
+    SERVER = socket(AF_INET, SOCK_STREAM, 0);
+    if (SERVER == -1) {
         printf("Socket creation failed...\n");
         exit(0);
     } else
@@ -101,16 +108,16 @@ void setupServer(int port) {
     /* bind server socket to ip address and port number */
     // descriptor, pointer to structure, and size of structure (fill address to
     // where should bind)
-    bind(server, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+    bind(SERVER, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
 
     /* Listens for new client */
-    listen(server, 0);
+    listen(SERVER, 0);
     std::cout << "Listening for incoming connections..." << std::endl;
     length = sizeof(clientAddr);
 
     /* Server accepts message from client side and returns client socket
      * descriptor */
-    client = accept(server, (struct sockaddr*)&clientAddr,
+    CLIENT = accept(SERVER, (struct sockaddr*)&clientAddr,
                     (socklen_t*)&length);  // Check to see if there's a better
                                            // way instead of current casting
     std::cout << "Client connected!" << std::endl;
@@ -121,17 +128,16 @@ void setupServer(int port) {
     // chat(client);
 
     /* Close socket connection for either server/client descriptor */
-    close(client);
-    std::cout << "Client disconnected" << std::endl;
+    // close(client);
+    // std::cout << "Client disconnected" << std::endl;
 }
 
 void setupClient(std::string address, int port) {
-    int serverSock = 0, clientSock = 0;
     struct sockaddr_in serverAddr, clientAddr;
 
     /* Create socket */
-    serverSock = socket(AF_INET, SOCK_STREAM, 0);
-    if (serverSock == -1) {
+    SERVER_SOCK = socket(AF_INET, SOCK_STREAM, 0);
+    if (SERVER_SOCK == -1) {
         printf("socket creation failed...\n");
         exit(0);
     } else
@@ -143,15 +149,15 @@ void setupClient(std::string address, int port) {
     serverAddr.sin_addr.s_addr = inet_addr(address.c_str());
     serverAddr.sin_port = htons(port);
 
-    connect(serverSock, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+    connect(SERVER_SOCK, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
     std::cout << "Connected to server!" << std::endl;
 
     /* Chat function */
     // chat(serverSock);
 
     /* Close socket */
-    close(serverSock);
-    std::cout << "Socket closed." << std::endl;
+    // close(serverSock);
+    // std::cout << "Socket closed." << std::endl;
 }
 
 /**
@@ -406,6 +412,11 @@ void runImgui(chatHistory history) {
     glfwTerminate();
 }
 
+void closeConnections() {
+    close(CLIENT);
+    close(SERVER_SOCK);
+}
+
 void setupHelper() {
     while (!IS_CONNECTED) {
         if (TRY_CONNECT) {
@@ -429,6 +440,8 @@ int main() {
 
     // Join setupHelper
     setupThread.join();
+
+    closeConnections();
 
     return 0;
 }
