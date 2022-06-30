@@ -45,6 +45,11 @@ constexpr int TEXT_MESSAGE_SIZE = 1024 * 8;
 constexpr int INIT_WINDOW_WIDTH = 400;
 constexpr int INIT_WINDOW_HEIGHT = 720;
 
+// Global state
+int PORT;
+bool TRY_CONNECT = false;
+bool IS_CONNECTED = false;
+
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
@@ -233,21 +238,21 @@ int runImgui(chatHistory history) {
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     bool justSent = true;
     bool newMessage = true;
-    bool isConnected = false;
     bool isServer = false;
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         // Poll and handle events (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to
-        // tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data
-        // to your main application, or clear/overwrite your copy of the mouse
-        // data.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input
-        // data to your main application, or clear/overwrite your copy of the
-        // keyboard data. Generally you may always pass all inputs to dear
-        // imgui, and hide them from your application based on those two flags.
+        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard
+        // flags to tell if dear imgui wants to use your inputs.
+        // - When io.WantCaptureMouse is true, do not dispatch mouse input
+        // data to your main application, or clear/overwrite your copy of
+        // the mouse data.
+        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard
+        // input data to your main application, or clear/overwrite your copy
+        // of the keyboard data. Generally you may always pass all inputs to
+        // dear imgui, and hide them from your application based on those
+        // two flags.
         glfwPollEvents();
 
         // Start the Dear ImGui frame
@@ -256,10 +261,10 @@ int runImgui(chatHistory history) {
         ImGui::NewFrame();
 
         /**
-         * @brief Shows connection window if not connected, otherwise show basic
-         * chat window
+         * @brief Shows connection window if not connected, otherwise show
+         * basic chat window
          */
-        if (!isConnected) {
+        if (!IS_CONNECTED) {
             // Init variables for IP address and port number
             static char ipAddress[64] = "";
             static char port[8] = "";
@@ -289,15 +294,14 @@ int runImgui(chatHistory history) {
                 // TODO: Simplify into tertiary and remove cout
                 if (isServer) {
                     std::cout << "Server set up" << std::endl;
+                    PORT = std::stoi(port);
+                    TRY_CONNECT = true;
                     // setupServer(std::stoi(port));
                 } else {
                     std::cout << "Client set up" << std::endl;
                     ;
                     // setupClient();
                 }
-
-                // TODO: Only set isConnected if setup completes successfully
-                isConnected = true;
             };
 
             ImGui::End();
@@ -310,7 +314,8 @@ int runImgui(chatHistory history) {
             ImGui::SetNextWindowSize(io.DisplaySize);
 
             // Create window
-            // TODO: Probably rename this to currently connected IP or something
+            // TODO: Probably rename this to currently connected IP or
+            // something
             ImGui::Begin("Chat box");
 
             // Child window scrollable area
@@ -381,7 +386,6 @@ int runImgui(chatHistory history) {
         glfwSwapBuffers(window);
     }
 
-    // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -392,13 +396,33 @@ int runImgui(chatHistory history) {
     return 0;
 }
 
+void setupHelper() {
+    while (!IS_CONNECTED) {
+        if (TRY_CONNECT) {
+            std::cout << "trying to connect to port " << PORT << std::endl;
+
+            setupServer(PORT);
+
+            IS_CONNECTED = true;
+        }
+    }
+}
+
 int main() {
     // Initialize chat history
     chatHistory history;
 
-    std::thread imGuiThread(runImgui, history);
+    // std::cout << "a" << std::endl;
+    // std::thread imGuiThread(runImgui, history);
 
-    imGuiThread.join();
+    // std::cout << "b" << std::endl;
+    // imGuiThread.join();
+
+    std::thread setupThread(setupHelper);
+
+    runImgui(history);
+
+    setupThread.join();
 
     return 0;
 }
