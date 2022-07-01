@@ -318,6 +318,11 @@ void runImgui(chatHistory history) {
                 TRY_CONNECT = true;
             };
 
+            // Exit button
+            if (ImGui::Button("Exit")) {
+                break;
+            }
+
             ImGui::End();
 
         } else if (TRY_CONNECT && !IS_CONNECTED) {
@@ -329,6 +334,11 @@ void runImgui(chatHistory history) {
             ImGui::Begin("Connecting");
 
             ImGui::Text("Setting up connection");
+
+            // Exit button
+            if (ImGui::Button("Exit")) {
+                break;
+            }
 
             ImGui::End();
         } else {
@@ -396,6 +406,7 @@ void runImgui(chatHistory history) {
                 justSent = handleSend(text, &history);
             };
 
+            // Exit button
             ImGui::SameLine(ImGui::GetWindowWidth() - 44);
 
             if (ImGui::Button("Exit")) {
