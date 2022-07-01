@@ -318,7 +318,7 @@ void runImgui(chatHistory history) {
                 TRY_CONNECT = true;
             };
 
-            // Exit button
+            // Exit button TODO: interrupt and exit properly
             if (ImGui::Button("Exit")) {
                 break;
             }
@@ -335,7 +335,7 @@ void runImgui(chatHistory history) {
 
             ImGui::Text("Setting up connection");
 
-            // Exit button
+            // Exit button TODO: interrupt and exit properly
             if (ImGui::Button("Exit")) {
                 break;
             }
