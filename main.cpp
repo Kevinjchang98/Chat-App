@@ -237,7 +237,7 @@ void setupClient(std::string address, int port) {
     serverAddr.sin_addr.s_addr = inet_addr(address.c_str());
     serverAddr.sin_port = htons(port);
 
-    connect(SERVER_SOCK, (6struct sockaddr*)&serverAddr, sizeof(serverAddr));
+    connect(SERVER_SOCK, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
     std::cout << "Connected to server!" << std::endl;
 
     /* Chat function */
