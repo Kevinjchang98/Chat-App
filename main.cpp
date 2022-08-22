@@ -28,6 +28,7 @@
 
 #include "chatHistory.h"
 #include "chatMessage.h"
+#include "ClientHandler.h"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to
 // maximize ease of testing and compatibility with old VS compilers. To link
@@ -41,6 +42,9 @@
 #endif
 
 // Global variables
+// synchronize 
+// everytime user sends message, IMGUI sets global variable to message 
+// signal client server ... lock/unlock mutex
 constexpr int TEXT_MESSAGE_SIZE = 1024 * 8;
 constexpr int INIT_WINDOW_WIDTH = 400;
 constexpr int INIT_WINDOW_HEIGHT = 720;
@@ -168,29 +172,37 @@ void setupServer(int port) {
         printf("Socket successfully created...\n");
     bzero(&serverAddr, sizeof(serverAddr));
 
-    /* Assign IP and Port number */
+    // assign IP and Port number 
     serverAddr.sin_family = AF_INET;          // Default is IPV4
     serverAddr.sin_addr.s_addr = INADDR_ANY;  // LAN or Wifi
-    serverAddr.sin_port = htons(port);  // hton translates short integer from
+    serverAddr.sin_port = htons(PORT);  // hton translates short integer from
                                         // host byte order to network byte order
 
-    /* bind server socket to ip address and port number */
-    // descriptor, pointer to structure, and size of structure (fill address to
-    // where should bind)
+    // bind server socket to ip address and port number
+    // descriptor, pointer to structure, and size of structure 
+    // (fill address to where should bind)
     bind(SERVER, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
 
-    /* Listens for new client */
+    // listens for new client 
     listen(SERVER, 0);
     std::cout << "Listening for incoming connections..." << std::endl;
     length = sizeof(clientAddr);
 
-    /* Server accepts message from client side and returns client socket
-     * descriptor */
-    CLIENT = accept(SERVER, (struct sockaddr*)&clientAddr,
-                    (socklen_t*)&length);  // Check to see if there's a better
-                                           // way instead of current casting
-    std::cout << "Client connected!" << std::endl;
+    // RUN INFINITE LOOP FOR GETTING CLIENT REQUEST 
+    // server accepts message from client side and returns client socket
+    // descriptor 
+    while (true) {
+        
+        // accept incoming request 
+        CLIENT = accept(SERVER, (struct sockaddr*)&clientAddr,
+                        (socklen_t*)&length);  // check to see if there's a better
+                                            // way instead of current casting
+        std::cout << "New client request received : " + CLIENT << std::endl;
 
+        // create a new client handler object for handling this request 
+        // ClientHandler match()
+
+    }
     // copies a single character for a specified number of time to an object
     // memset(buffer, 0, sizeof(buffer));
     /* Call chat function */
@@ -225,7 +237,7 @@ void setupClient(std::string address, int port) {
     serverAddr.sin_addr.s_addr = inet_addr(address.c_str());
     serverAddr.sin_port = htons(port);
 
-    connect(SERVER_SOCK, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+    connect(SERVER_SOCK, (6struct sockaddr*)&serverAddr, sizeof(serverAddr));
     std::cout << "Connected to server!" << std::endl;
 
     /* Chat function */
@@ -382,6 +394,11 @@ void runImgui(chatHistory history) {
                 TRY_CONNECT = true;
             };
 
+            // Exit button TODO: interrupt and exit properly
+            if (ImGui::Button("Exit")) {
+                break;
+            }
+
             ImGui::End();
 
         } else if (TRY_CONNECT && !IS_CONNECTED) {
@@ -393,6 +410,11 @@ void runImgui(chatHistory history) {
             ImGui::Begin("Connecting");
 
             ImGui::Text("Setting up connection");
+
+            // Exit button TODO: interrupt and exit properly
+            if (ImGui::Button("Exit")) {
+                break;
+            }
 
             ImGui::End();
         } else {
@@ -460,6 +482,7 @@ void runImgui(chatHistory history) {
                 justSent = handleSend(text, &history);
             };
 
+            // Exit button
             ImGui::SameLine(ImGui::GetWindowWidth() - 44);
 
             if (ImGui::Button("Exit")) {
@@ -523,11 +546,45 @@ void setupHelper() {
 }
 
 int main() {
-    // Initialize chat history
+   // Initialize chat history
     chatHistory history;
 
     // Start setupHelper
     std::thread setupThread(setupHelper);
+
+    runImgui(history);
+
+    // Join setupHelper
+    setupThread.join();
+
+    closeConnections();
+
+    return 0;
+
+    // vector to store active clients 
+    // I THINK CLIENTHANDLER IS A THREAD.. CAN VECTORS HOLD THREADS? 
+    // vector<ClientHandler> activeClientsList;
+
+    // // create clienthandler object 
+
+    // // counter for clients
+    // int clientCount = 0; 
+    
+    // // std::thread setupThread(setupHelper);
+    // std::thread setUpThread(match); 
+
+    // std::cout << "Adding this client to active client list : " 
+    //         + CLIENT << std::endl;
+
+    // // add this client to active clients list
+    // activeClientsList(match); 
+
+    // // start the thread 
+
+
+    // // increment clientCount for new client.
+    // clientCount++; 
+
 
     runImgui(history);
 
