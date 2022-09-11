@@ -18,6 +18,7 @@
 #include <GLFW/glfw3.h>  // Will drag system OpenGL headers
 
 #include <thread>
+#include <semaphore.h>
 
 // Socket programming
 #include <arpa/inet.h>
@@ -28,7 +29,7 @@
 
 #include "chatHistory.h"
 #include "chatMessage.h"
-#include "ClientHandler.h"
+// #include "ClientHandler.h"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to
 // maximize ease of testing and compatibility with old VS compilers. To link
@@ -104,7 +105,7 @@ bool handleSend(char* text, chatHistory* history) {
 
         // Send buffer to client */
         // TODO: Update this
-        // send(CLIENT, text, sizeof(text));
+        write(CLIENT_SOCK, text, sizeof(text));
 
         // TODO: Probably want to only add to chat history once the message has
         // been sent. Also don't hardcode "Me" as the sender
@@ -191,18 +192,19 @@ void setupServer(int port) {
     // RUN INFINITE LOOP FOR GETTING CLIENT REQUEST 
     // server accepts message from client side and returns client socket
     // descriptor 
-    while (true) {
+    // while (true) {
         
         // accept incoming request 
         CLIENT = accept(SERVER, (struct sockaddr*)&clientAddr,
                         (socklen_t*)&length);  // check to see if there's a better
                                             // way instead of current casting
-        std::cout << "New client request received : " + CLIENT << std::endl;
+        // std::cout << "New client request received : " + CLIENT << std::endl;
+        std::cout << "Client connected! " << std::endl; 
 
         // create a new client handler object for handling this request 
         // ClientHandler match()
 
-    }
+    // }
     // copies a single character for a specified number of time to an object
     // memset(buffer, 0, sizeof(buffer));
     /* Call chat function */
@@ -585,13 +587,4 @@ int main() {
     // // increment clientCount for new client.
     // clientCount++; 
 
-
-    runImgui(history);
-
-    // Join setupHelper
-    setupThread.join();
-
-    closeConnections();
-
-    return 0;
 }
