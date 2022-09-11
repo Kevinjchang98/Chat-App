@@ -18,7 +18,8 @@
 #include <GLFW/glfw3.h>  // Will drag system OpenGL headers
 
 #include <thread>
-#include <semaphore.h>
+#include <mutex>
+#include <condition_variable>
 
 // Socket programming
 #include <arpa/inet.h>
@@ -30,6 +31,11 @@
 #include "chatHistory.h"
 #include "chatMessage.h"
 // #include "ClientHandler.h"
+
+// Global variables shared by threads 
+std::mutex mut;
+std::condition_variable cv;
+std::string sdata{"Empty"};
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to
 // maximize ease of testing and compatibility with old VS compilers. To link
@@ -78,19 +84,19 @@ static void glfw_error_callback(int error, const char* description) {
  */
 bool handleSend(char* text, chatHistory* history) {
     if (IS_SERVER) {
-        // Receive mesasge 
-        // read(SERVER, text, sizeof(text)); 
+        // Read message from client and copy it in buffer
+        recv(SERVER, text, sizeof(text), 0); 
 
-        // Server send behavior
+        // Print buffer which contains client content 
+        std::cout << "Client: " << text << std::endl; 
+
+        // Send buffer to client 
         send(SERVER, text, sizeof(text), 0);
 
         // TODO: Replace with desired behavior
         std::cout << "This is the server" << std::endl; 
+        std::cout << "Server: " << text << std::endl; 
         std::cout << "Awaiting client response..." << std::endl; 
-        std::cout << "Client: " << text << std::endl; 
-
-        // Send buffer to client */
-        // write(SERVER, text, sizeof(text));
 
         // TODO: Probably want to only add to chat history once the message has
         // been sent. Also don't hardcode "Me" as the sender
@@ -102,20 +108,19 @@ bool handleSend(char* text, chatHistory* history) {
         // If successfully sent return true
         return true;
     } else {
-        // Client send behavior
-        send(CLIENT_SOCK, text, sizeof(text), 0);
+        // Read message from server and copy it in buffer
+        recv(SERVER_SOCK, text, sizeof(text), 0); 
 
-        // Receive mesasge 
-        // read(CLIENT_SOCK, text, sizeof(text)); 
+        // Print buffer which contains server content 
+        std::cout << "Server: " << text << std::endl; 
+
+        // Send buffer to server 
+        send(SERVER_SOCK, text, sizeof(text), 0);
 
         // TODO: Replace with desired behavior
         std::cout << "This is the client" << std::endl; 
+        std::cout << "Client: " << text << std::endl; 
         std::cout << "Awaiting server response..." << std::endl; 
-        std::cout << "Server: " << text << std::endl; 
-
-        // Send buffer to client */
-        // TODO: Update this
-        // write(CLIENT_SOCK, text, sizeof(text));
 
         // TODO: Probably want to only add to chat history once the message has
         // been sent. Also don't hardcode "Me" as the sender
@@ -129,6 +134,25 @@ bool handleSend(char* text, chatHistory* history) {
     }
 }
 
+// Waiting thread 
+void reader(char* text) {
+    std::unique_lock<std::mutex> guard(mut);     // Acquire lock
+    cv.wait(guard);                         // Wait for condition variable to be notified 
+    std::cout << "Text is " << text << std::endl; 
+}
+
+// Modifying thread
+void writer(char* text) {
+    std::cout << "Writing data... " << std::endl;
+    {
+        // Critical section 
+        std::lock_guard<std::mutex> lg(mut);     // Acquire lock
+        std::this_thread::sleep_for(2s);         // Pretend to be busy...
+        sdata = text;                       // Modify the data
+    }
+    cv.notify_one();                        // Notify the condition variable 
+
+}
 // std::string handleRead() {
 //     if (IS_SERVER) {
 //         char buffer[1500] = {0};
@@ -172,6 +196,7 @@ bool handleSend(char* text, chatHistory* history) {
  * @param port Port to use given as an int
  */
 void setupServer(int port) {
+    std::cout << "Set up Server: " << std::endl; 
     int length = 0;
     struct sockaddr_in serverAddr, clientAddr;
 
@@ -233,6 +258,7 @@ void setupServer(int port) {
  * @param port Port to use given as int
  */
 void setupClient(std::string address, int port) {
+    std::cout << "Set up Server: " << std::endl; 
     struct sockaddr_in serverAddr, clientAddr;
 
     /* Create socket */
