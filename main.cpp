@@ -78,14 +78,19 @@ static void glfw_error_callback(int error, const char* description) {
  */
 bool handleSend(char* text, chatHistory* history) {
     if (IS_SERVER) {
+        // Receive mesasge 
+        // read(SERVER, text, sizeof(text)); 
+
         // Server send behavior
+        send(SERVER, text, sizeof(text), 0);
 
         // TODO: Replace with desired behavior
-        std::cout << "Server send button pressed with text contents: " << text
-                  << std::endl;
+        std::cout << "This is the server" << std::endl; 
+        std::cout << "Awaiting client response..." << std::endl; 
+        std::cout << "Client: " << text << std::endl; 
 
         // Send buffer to client */
-        write(SERVER, text, sizeof(text));
+        // write(SERVER, text, sizeof(text));
 
         // TODO: Probably want to only add to chat history once the message has
         // been sent. Also don't hardcode "Me" as the sender
@@ -98,14 +103,19 @@ bool handleSend(char* text, chatHistory* history) {
         return true;
     } else {
         // Client send behavior
+        send(CLIENT_SOCK, text, sizeof(text), 0);
+
+        // Receive mesasge 
+        // read(CLIENT_SOCK, text, sizeof(text)); 
 
         // TODO: Replace with desired behavior
-        std::cout << "Client send button pressed with text contents: " << text
-                  << std::endl;
+        std::cout << "This is the client" << std::endl; 
+        std::cout << "Awaiting server response..." << std::endl; 
+        std::cout << "Server: " << text << std::endl; 
 
         // Send buffer to client */
         // TODO: Update this
-        write(CLIENT_SOCK, text, sizeof(text));
+        // write(CLIENT_SOCK, text, sizeof(text));
 
         // TODO: Probably want to only add to chat history once the message has
         // been sent. Also don't hardcode "Me" as the sender
@@ -119,14 +129,14 @@ bool handleSend(char* text, chatHistory* history) {
     }
 }
 
-std::string handleRead() {
-    if (IS_SERVER) {
-        char buffer[1500] = {0};
-        read(SERVER, buffer, sizeof(buffer));
+// std::string handleRead() {
+//     if (IS_SERVER) {
+//         char buffer[1500] = {0};
+//         read(SERVER, buffer, sizeof(buffer));
 
-        std::cout << std::string(buffer) << std::endl;
-    }
-}
+//         std::cout << std::string(buffer) << std::endl;
+//     }
+// }
 
 // void chat(int server) {
 //     char buffer[1500] = { 0 };
