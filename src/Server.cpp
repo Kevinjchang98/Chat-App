@@ -21,9 +21,8 @@
  * @param ip_address IP address to connect to
  * @param port_no Port number to connect to
  */
-Server::Server(char *ip_address, int port_no) {
+Server::Server(int port_no) {
     std::cout << "Server constructed\n";
-    this->ip_address = ip_address;
     this->port_no = port_no;
     stopListening = false; 
 

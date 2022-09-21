@@ -9,7 +9,7 @@
 
 class Server {
    public:
-    Server(char *ip_address, int port_no);
+    Server(int port_no);
     ~Server();
     void sendMessage(std::string data);
     void joinThreads(); 

@@ -21,10 +21,10 @@
  * @param ip_address IP address to connect to
  * @param port Port number to connect to
  */
-Client::Client(std::string ip_address, int port) {
+Client::Client(char* ip_address, int port) {
     std::cout << "Client constructed\n";
     this->ip_address = ip_address;
-    this->port = port;
+    this->port_no = port;
     stopListening = false; 
 
     // Setup a socket and connection tools
