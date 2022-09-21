@@ -78,6 +78,12 @@ bool handleSend(char* text, chatHistory* history) {
     std::cout << "Send button pressed with text contents: " << text
               << std::endl;
 
+    if (IS_SERVER) {
+        myServer->sendMessage(text);
+    } else {
+        myClient->sendMessage(text);
+    }
+
     // TODO: Probably want to only add to chat history once the message has been
     // sent. Also don't hardcode "Me" as the sender
     history->addMessage(text, "Me");
