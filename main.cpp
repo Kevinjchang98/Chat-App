@@ -175,6 +175,13 @@ void runImgui(chatHistory history) {
     bool newMessage = true;
     bool isServer = false;
 
+    // Init variables for IP address and port number
+    char ipAddress[64] = "";
+    char port[8] = "";
+
+    // Initial text
+    char text[TEXT_MESSAGE_SIZE] = "";
+
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         // Poll and handle events (inputs, window resize, etc.)
@@ -201,12 +208,6 @@ void runImgui(chatHistory history) {
          */
         if (!IS_CONNECTED && !TRY_CONNECT) {
             // Initial connection screen
-
-            // Init variables for IP address and port number
-            // TODO: Probably directly change global state
-            char ipAddress[64] = "";
-            char port[8] = "";
-
             // Make window take up full system window
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::SetNextWindowSize(io.DisplaySize);
@@ -244,7 +245,6 @@ void runImgui(chatHistory history) {
 
         } else if (TRY_CONNECT && !IS_CONNECTED) {
             // Is loading
-
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::SetNextWindowSize(io.DisplaySize);
 
@@ -300,9 +300,6 @@ void runImgui(chatHistory history) {
 
             ImGui::EndChild();
             ImGui::PopStyleVar();
-
-            // Initial text
-            char text[TEXT_MESSAGE_SIZE];  // = ""
 
             // Text input area flags
             ImGuiInputTextFlags input_flags =
