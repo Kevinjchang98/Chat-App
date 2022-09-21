@@ -33,8 +33,8 @@
 #include "chatMessage.h"
 
 // Global pointers to the Client and Server objects
-Server* myServer;
-Client* myClient;
+std::unique_ptr<Server> myServer;
+std::unique_ptr<Client> myClient;
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to
 // maximize ease of testing and compatibility with old VS compilers. To link
@@ -381,12 +381,11 @@ void connectHelper() {
             // Start session
             if (IS_SERVER) {
                 // Create server object
-                myServer = new Server(PORT);
+                myServer = std::make_unique<Server>(PORT);
             } else {
                 // Create client object
                 // TODO: Remove use of char* in client class
-                myClient = 
-                    new Client(IP_ADDRESS, PORT);
+                myClient = std::make_unique<Client>(IP_ADDRESS, PORT);
             }
 
             IS_CONNECTED = true;
