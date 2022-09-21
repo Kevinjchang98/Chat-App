@@ -9,7 +9,7 @@
 
 class Client {
    public:
-    Client(std::string ip_address, int port);
+    Client(char* ip_address, int port);
     ~Client();
     void sendMessage(std::string message);
     void receiveMessage();

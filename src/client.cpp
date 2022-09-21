@@ -1,4 +1,4 @@
-#include "Client.h"
+#include "client.h"
 
 #include <arpa/inet.h>
 #include <errno.h>

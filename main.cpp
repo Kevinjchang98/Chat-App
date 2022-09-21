@@ -27,8 +27,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "Server.h"
-#include "Client.h"
+#include "server.h"
+#include "client.h"
 #include "chatHistory.h"
 #include "chatMessage.h"
 
@@ -384,7 +384,8 @@ void connect() {
                 myServer = new Server(PORT);
             } else {
                 // Create client object
-                myClient = new Client(IP_ADDRESS, PORT);
+                // TODO: Remove use of char* in client class
+                myClient = new Client(const_cast<char*>(IP_ADDRESS.c_str()), PORT);
             }
 
             IS_CONNECTED = true;
