@@ -19,19 +19,19 @@
  * @brief Construct a new Server:: Server object
  *
  * @param ip_address IP address to connect to
- * @param port Port number to connect to
+ * @param port_no Port number to connect to
  */
-Server::Server(int port) {
+Server::Server(char *ip_address, int port_no) {
     std::cout << "Server constructed\n";
     this->ip_address = ip_address;
-    this->port = port;
+    this->port_no = port_no;
     stopListening = false; 
 
     // Setup a socket and connection tools
     bzero((char *)&servAddr, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
     servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servAddr.sin_port = htons(port);
+    servAddr.sin_port = htons(port_no);
 
     // Open stream oriented socket with internet address
     // also keep track of the socket descriptor

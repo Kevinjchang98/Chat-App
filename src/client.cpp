@@ -1,4 +1,4 @@
-#include "client.h"
+#include "Client.h"
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -19,12 +19,12 @@
  * @brief Construct a new Client:: Client object
  *
  * @param ip_address IP address to connect to
- * @param port_no Port number to connect to
+ * @param port Port number to connect to
  */
-Client::Client(char *ip_address, int port_no) {
+Client::Client(std::string ip_address, int port) {
     std::cout << "Client constructed\n";
     this->ip_address = ip_address;
-    this->port_no = port_no;
+    this->port = port;
     stopListening = false; 
 
     // Setup a socket and connection tools
@@ -42,7 +42,6 @@ Client::Client(char *ip_address, int port_no) {
     }
     std::cout << "Connected to the server!" << std::endl;
 
-    // [cc] (p) {fd};
     // Create new thread to listen for incoming messages
     std::cout << "Creating listen thread" << std::endl;
 

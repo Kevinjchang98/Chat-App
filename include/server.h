@@ -9,17 +9,17 @@
 
 class Server {
    public:
-    Server(int port);
+    Server(char *ip_address, int port_no);
     ~Server();
     void sendMessage(std::string data);
-    void joinThreads();
+    void joinThreads(); 
     void receiveMessage();
     // int getClient();
     // std::string getIP();
 
    private:
-    std::string ip_address;
-    int port;
+    char *ip_address;
+    int port_no;
     char msg;
     bool stopListening;
     std::string data;
@@ -28,8 +28,8 @@ class Server {
     sockaddr_in servAddr;
     sockaddr_in newSockAddr;
     socklen_t newSockAddrSize;
-    std::thread listener;
-    int MAX_CHAR = 1500;
+    std::thread listener; 
+    int MAX_CHAR = 1500; 
 };
 
 #endif /* SERVER_H */
