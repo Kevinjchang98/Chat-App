@@ -386,7 +386,7 @@ void connectHelper() {
                 // Create client object
                 // TODO: Remove use of char* in client class
                 myClient = 
-                    new Client(const_cast<char*>(IP_ADDRESS.c_str()), PORT);
+                    new Client(IP_ADDRESS, PORT);
             }
 
             IS_CONNECTED = true;

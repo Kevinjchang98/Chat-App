@@ -21,7 +21,7 @@
  * @param ip_address IP address to connect to
  * @param port Port number to connect to
  */
-Client::Client(char* ip_address, int port) {
+Client::Client(const std::string ip_address, const int port) {
     std::cout << "Client constructed\n";
     stopListening = false; 
 
@@ -29,7 +29,7 @@ Client::Client(char* ip_address, int port) {
     // bzero((char *)&sendSockAddr, sizeof(sendSockAddr));
     sendSockAddr = {}; // TODO: Verify same behavior as bzero();
     sendSockAddr.sin_family = AF_INET;
-    sendSockAddr.sin_addr.s_addr = inet_addr(ip_address);
+    sendSockAddr.sin_addr.s_addr = inet_addr(const_cast<char*>(ip_address.c_str()));
     sendSockAddr.sin_port = htons(port);
     clientSd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -59,7 +59,7 @@ Client::~Client() { std::cout << "Client object destroyed\n"; }
  *
  * @param data Message to be sent as string. 
  */
-void Client::sendMessage(std::string data) {
+void Client::sendMessage(const std::string data) {
     char msg[MAX_CHAR];
 
     memset(&msg, 0, sizeof(msg));   // clear the buffer
