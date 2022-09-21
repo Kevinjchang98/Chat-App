@@ -19,7 +19,7 @@
  *
  * @param port_no Port number to listen on
  */
-Server::Server(int port_no) {
+Server::Server(const int port_no) {
     std::cout << "Server constructed\n";
     stopListening = false;
 
@@ -81,7 +81,7 @@ Server::~Server() { std::cout << "Server() destroyed"; }
  *
  * @param data Message to be sent as a string.
  */
-void Server::sendMessage(std::string data) {
+void Server::sendMessage(const std::string data) {
     char msg[MAX_CHAR];
 
     memset(&msg, 0, sizeof(msg));  // clear the buffer

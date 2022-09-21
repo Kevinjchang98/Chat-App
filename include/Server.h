@@ -9,9 +9,9 @@
 
 class Server {
    public:
-    Server(int port_no);
+    Server(const int port_no);
     ~Server();
-    void sendMessage(std::string data);
+    void sendMessage(const std::string data);
     void receiveMessage();
     void stop();
 
@@ -22,7 +22,7 @@ class Server {
     sockaddr_in servAddr;
     sockaddr_in newSockAddr;
     socklen_t newSockAddrSize;
-    int MAX_CHAR = 1500;
+    const int MAX_CHAR = 1500;
 };
 
 #endif /* SERVER_H */
