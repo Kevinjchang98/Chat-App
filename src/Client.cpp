@@ -23,15 +23,14 @@
  */
 Client::Client(char* ip_address, int port) {
     std::cout << "Client constructed\n";
-    this->ip_address = ip_address;
-    this->port_no = port;
     stopListening = false; 
 
     // Setup a socket and connection tools
-    bzero((char *)&sendSockAddr, sizeof(sendSockAddr));
+    // bzero((char *)&sendSockAddr, sizeof(sendSockAddr));
+    sendSockAddr = {}; // TODO: Verify same behavior as bzero();
     sendSockAddr.sin_family = AF_INET;
     sendSockAddr.sin_addr.s_addr = inet_addr(ip_address);
-    sendSockAddr.sin_port = htons(port_no);
+    sendSockAddr.sin_port = htons(port);
     clientSd = socket(AF_INET, SOCK_STREAM, 0);
 
     // Try to connect...
@@ -79,39 +78,24 @@ void Client::receiveMessage() {
     std::time_t time_now = std::time(nullptr); 
     char* t = ctime(&time_now); 
 
-    while (true) {
-        // if (stopListening == true) return;
+    while (!stopListening) {
         memset(&msg, 0, sizeof(msg));  // clear the buffer
-        recv(clientSd, (char *)&msg, sizeof(msg), 0);
-        if(!strcmp(msg, "exit")) {
-            std::cout << "Server has quit the session" << std::endl;
-            break;
-        }
-        std::cout << t << "Server: " << msg << std::endl;
 
-        // Re-show prompt; this will not be needed with ImGui
-        std::cout << "Enter your message: " << std::endl;
+        recv(clientSd, (char *)&msg, sizeof(msg), 0);
+
+        // if(!strcmp(msg, "exit")) {
+        //     std::cout << "Server has quit the session" << std::endl;
+        //     break;
+        // }
+
+        std::cout << t << "Server: " << msg << std::endl;
     }
+
     std::cout << "Client stopped listening\n";
 }
 
-// A method we expect the client to run. Thinking about it more we probably
-// could just do this in the constructor idk
-// void Client::init() {
-//     receiveMessagesThread = std::thread(&Client::receiveMessages, this);
-// }
-
-// We want to run this at the end to join the receiveMessagesThread
-void Client::joinThreads() {
-    stopListening = true;
-    std::cout << "Exiting\n";
-    if (listener.joinable()) {
-        listener.join();
-        std::cout << "Receive messages thread joined\n";
-    };
-    close(clientSd); 
-    std::cout << "End of session\n"; 
-}
-
-// std::string Client::getIP() { return ip_address; }
-
+/**
+ * @brief Stops listening for new messages
+ *
+ */
+void Client::stop() { stopListening = true; }
