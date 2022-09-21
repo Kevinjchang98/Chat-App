@@ -27,14 +27,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "server.h"
-#include "client.h"
+#include "Client.h"
+#include "Server.h"
 #include "chatHistory.h"
 #include "chatMessage.h"
 
 // Global pointers to the Client and Server objects
-Server *myServer;
-Client *myClient;
+Server* myServer;
+Client* myClient;
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to
 // maximize ease of testing and compatibility with old VS compilers. To link
@@ -48,8 +48,8 @@ Client *myClient;
 #endif
 
 // Global variables
-// synchronize 
-// everytime user sends message, IMGUI sets global variable to message 
+// synchronize
+// everytime user sends message, IMGUI sets global variable to message
 // signal client server ... lock/unlock mutex
 constexpr int TEXT_MESSAGE_SIZE = 1024 * 8;
 constexpr int INIT_WINDOW_WIDTH = 400;
@@ -204,8 +204,8 @@ void runImgui(chatHistory history) {
 
             // Init variables for IP address and port number
             // TODO: Probably directly change global state
-            char ipAddress[64] = "";    
-            char port[8] = "";          
+            char ipAddress[64] = "";
+            char port[8] = "";
 
             // Make window take up full system window
             ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -230,7 +230,7 @@ void runImgui(chatHistory history) {
                 std::cout << "Connect button clicked" << std::endl;
 
                 IP_ADDRESS = ipAddress;
-                PORT = std::stoi(port);
+                PORT = std::atoi(port);
                 IS_SERVER = isServer;
                 TRY_CONNECT = true;
             };
@@ -302,7 +302,7 @@ void runImgui(chatHistory history) {
             ImGui::PopStyleVar();
 
             // Initial text
-            char text[TEXT_MESSAGE_SIZE]; // = ""
+            char text[TEXT_MESSAGE_SIZE];  // = ""
 
             // Text input area flags
             ImGuiInputTextFlags input_flags =
@@ -373,33 +373,36 @@ void runImgui(chatHistory history) {
  * option chosen in gui. Constantly checks the TRY_CONNECT bool until it's time
  * to attempt a setup
  */
-void connect() {
+void connectHelper() {
     while (!IS_CONNECTED) {
         if (TRY_CONNECT) {
             std::cout << "Using port " << PORT << std::endl;
 
-            // Start session 
+            // Start session
             if (IS_SERVER) {
                 // Create server object
                 myServer = new Server(PORT);
             } else {
                 // Create client object
                 // TODO: Remove use of char* in client class
-                myClient = new Client(const_cast<char*>(IP_ADDRESS.c_str()), PORT);
+                myClient = 
+                    new Client(const_cast<char*>(IP_ADDRESS.c_str()), PORT);
             }
 
             IS_CONNECTED = true;
+            std::cout << "Stopping connectHelper() thread" << std::endl;
             return;
         }
     }
-}
+};
 
 int main() {
-   // Initialize chat history
+    // Initialize chat history
     chatHistory history;
 
     // Start server-client session
-    connect(); 
+    std::thread connectThread(connectHelper);
+    connectThread.detach();
 
     runImgui(history);
 
