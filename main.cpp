@@ -17,25 +17,24 @@
 #endif
 #include <GLFW/glfw3.h>  // Will drag system OpenGL headers
 
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-
 // Socket programming
 #include <arpa/inet.h>
+#include <errno.h>
 #include <netinet/in.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
 
+#include "Server.h"
+#include "Client.h"
 #include "chatHistory.h"
 #include "chatMessage.h"
-// #include "ClientHandler.h"
 
-// Global variables shared by threads 
-std::mutex mut;
-std::condition_variable cv;
-std::string sdata{"Empty"};
+// Global pointers to the Client and Server objects
+Server *myServer;
+Client *myClient;
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to
 // maximize ease of testing and compatibility with old VS compilers. To link
@@ -62,14 +61,6 @@ bool TRY_CONNECT = false;
 bool IS_SERVER = false;
 bool IS_CONNECTED = false;
 
-// If being set up as server
-int SERVER = 0;
-int CLIENT = 0;
-
-// If being set up as client
-int SERVER_SOCK = 0;
-int CLIENT_SOCK = 0;
-
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
@@ -83,207 +74,19 @@ static void glfw_error_callback(int error, const char* description) {
  * @return true if successfully sent
  */
 bool handleSend(char* text, chatHistory* history) {
-    if (IS_SERVER) {
-        // Read message from client and copy it in buffer
-        recv(SERVER, text, sizeof(text), 0); 
+    // TODO: Replace with desired behavior
+    std::cout << "Send button pressed with text contents: " << text
+              << std::endl;
 
-        // Print buffer which contains client content 
-        std::cout << "Client: " << text << std::endl; 
+    // TODO: Probably want to only add to chat history once the message has been
+    // sent. Also don't hardcode "Me" as the sender
+    history->addMessage(text, "Me");
 
-        // Send buffer to client 
-        send(SERVER, text, sizeof(text), 0);
+    // Clear text input area
+    strncpy(text, "", TEXT_MESSAGE_SIZE);
 
-        // TODO: Replace with desired behavior
-        std::cout << "This is the server" << std::endl; 
-        std::cout << "Server: " << text << std::endl; 
-        std::cout << "Awaiting client response..." << std::endl; 
-
-        // TODO: Probably want to only add to chat history once the message has
-        // been sent. Also don't hardcode "Me" as the sender
-        history->addMessage(text, "Me");
-
-        // Clear text input area
-        strncpy(text, "", TEXT_MESSAGE_SIZE);
-
-        // If successfully sent return true
-        return true;
-    } else {
-        // Read message from server and copy it in buffer
-        recv(SERVER_SOCK, text, sizeof(text), 0); 
-
-        // Print buffer which contains server content 
-        std::cout << "Server: " << text << std::endl; 
-
-        // Send buffer to server 
-        send(SERVER_SOCK, text, sizeof(text), 0);
-
-        // TODO: Replace with desired behavior
-        std::cout << "This is the client" << std::endl; 
-        std::cout << "Client: " << text << std::endl; 
-        std::cout << "Awaiting server response..." << std::endl; 
-
-        // TODO: Probably want to only add to chat history once the message has
-        // been sent. Also don't hardcode "Me" as the sender
-        history->addMessage(text, "Me");
-
-        // Clear text input area
-        strncpy(text, "", TEXT_MESSAGE_SIZE);
-
-        // If successfully sent return true
-        return true;
-    }
-}
-
-// Waiting thread 
-void reader(char* text) {
-    std::unique_lock<std::mutex> guard(mut);     // Acquire lock
-    cv.wait(guard);                         // Wait for condition variable to be notified 
-    std::cout << "Text is " << text << std::endl; 
-}
-
-// Modifying thread
-void writer(char* text) {
-    std::cout << "Writing data... " << std::endl;
-    {
-        // Critical section 
-        std::lock_guard<std::mutex> lg(mut);     // Acquire lock
-        std::this_thread::sleep_for(2s);         // Pretend to be busy...
-        sdata = text;                       // Modify the data
-    }
-    cv.notify_one();                        // Notify the condition variable 
-
-}
-// std::string handleRead() {
-//     if (IS_SERVER) {
-//         char buffer[1500] = {0};
-//         read(SERVER, buffer, sizeof(buffer));
-
-//         std::cout << std::string(buffer) << std::endl;
-//     }
-// }
-
-// void chat(int server) {
-//     char buffer[1500] = { 0 };
-//     int n;
-//
-//     /* Infinite loop for chat */
-//     while (true) {
-//         bzero(buffer, MAX);
-//         // Read message from client and copy it in buffer
-//         read(server, buffer, sizeof(buffer));
-//         // Print buffer which contains client content
-//         printf("From client: %s\t From server : ", buffer);
-//         bzero(buffer, MAX);
-//         n = 0;
-//         /* Copy server message in buffer */
-//         while ((buffer[n++] = getchar()) != '\n');
-//
-//         /* Send buffer to client */
-//         write(server, buffer, sizeof(buffer));
-//
-//         /* If msg contains "Exit" then server exit and chat ended */
-//         if (strncmp("exit", buffer, 4) == 0) {
-//             printf("Server Exit...\n");
-//             break;
-//         }
-//     }
-// }
-//
-
-/**
- * @brief Sets up this instance as a server. Attempts to use the given port
- *
- * @param port Port to use given as an int
- */
-void setupServer(int port) {
-    std::cout << "Set up Server: " << std::endl; 
-    int length = 0;
-    struct sockaddr_in serverAddr, clientAddr;
-
-    SERVER = socket(AF_INET, SOCK_STREAM, 0);
-    if (SERVER == -1) {
-        printf("Socket creation failed...\n");
-        exit(0);
-    } else
-        printf("Socket successfully created...\n");
-    bzero(&serverAddr, sizeof(serverAddr));
-
-    // assign IP and Port number 
-    serverAddr.sin_family = AF_INET;          // Default is IPV4
-    serverAddr.sin_addr.s_addr = INADDR_ANY;  // LAN or Wifi
-    serverAddr.sin_port = htons(PORT);  // hton translates short integer from
-                                        // host byte order to network byte order
-
-    // bind server socket to ip address and port number
-    // descriptor, pointer to structure, and size of structure 
-    // (fill address to where should bind)
-    bind(SERVER, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
-
-    // listens for new client 
-    listen(SERVER, 0);
-    std::cout << "Listening for incoming connections..." << std::endl;
-    length = sizeof(clientAddr);
-
-    // RUN INFINITE LOOP FOR GETTING CLIENT REQUEST 
-    // server accepts message from client side and returns client socket
-    // descriptor 
-    // while (true) {
-        
-        // accept incoming request 
-        CLIENT = accept(SERVER, (struct sockaddr*)&clientAddr,
-                        (socklen_t*)&length);  // check to see if there's a better
-                                            // way instead of current casting
-        // std::cout << "New client request received : " + CLIENT << std::endl;
-        std::cout << "Client connected! " << std::endl; 
-
-        // create a new client handler object for handling this request 
-        // ClientHandler match()
-
-    // }
-    // copies a single character for a specified number of time to an object
-    // memset(buffer, 0, sizeof(buffer));
-    /* Call chat function */
-    // chat(client);
-
-    /* Close socket connection for either server/client descriptor */
-    // close(client);
-    // std::cout << "Client disconnected" << std::endl;
-}
-
-/**
- * @brief Sets up this instance as a client. Attempts to connect to given IP
- * address and port
- *
- * @param address Address to connect to given as string
- * @param port Port to use given as int
- */
-void setupClient(std::string address, int port) {
-    std::cout << "Set up Server: " << std::endl; 
-    struct sockaddr_in serverAddr, clientAddr;
-
-    /* Create socket */
-    SERVER_SOCK = socket(AF_INET, SOCK_STREAM, 0);
-    if (SERVER_SOCK == -1) {
-        printf("socket creation failed...\n");
-        exit(0);
-    } else
-        printf("Socket successfully created..\n");
-    bzero(&serverAddr, sizeof(serverAddr));
-
-    /* Assign IP and Port number */
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = inet_addr(address.c_str());
-    serverAddr.sin_port = htons(port);
-
-    connect(SERVER_SOCK, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
-    std::cout << "Connected to server!" << std::endl;
-
-    /* Chat function */
-    // chat(serverSock);
-
-    /* Close socket */
-    // close(serverSock);
-    // std::cout << "Socket closed." << std::endl;
+    // If successfully sent return true
+    return true;
 }
 
 /**
@@ -401,8 +204,8 @@ void runImgui(chatHistory history) {
 
             // Init variables for IP address and port number
             // TODO: Probably directly change global state
-            static char ipAddress[64] = "";
-            static char port[8] = "";
+            char ipAddress[64] = "";    
+            char port[8] = "";          
 
             // Make window take up full system window
             ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -499,7 +302,7 @@ void runImgui(chatHistory history) {
             ImGui::PopStyleVar();
 
             // Initial text
-            char text[TEXT_MESSAGE_SIZE] = "";
+            char text[TEXT_MESSAGE_SIZE]; // = ""
 
             // Text input area flags
             ImGuiInputTextFlags input_flags =
@@ -554,28 +357,35 @@ void runImgui(chatHistory history) {
     glfwTerminate();
 }
 
-/**
- * @brief Closes client and server connections
- * TODO: Close the appropriate connection instead of attempting to close both
- */
-void closeConnections() {
-    std::cout << "Closing connections" << std::endl;
-    close(CLIENT);
-    close(SERVER_SOCK);
-    std::cout << "Connections closed" << std::endl;
-}
+// /**
+//  * @brief Closes client and server connections
+//  * TODO: Close the appropriate connection instead of attempting to close both
+//  */
+// void closeConnections() {
+//     std::cout << "Closing connections" << std::endl;
+//     close(CLIENT);
+//     close(SERVER_SOCK);
+//     std::cout << "Connections closed" << std::endl;
+// }
 
 /**
  * @brief Runs the appropriate setup method for server or client depending on
  * option chosen in gui. Constantly checks the TRY_CONNECT bool until it's time
  * to attempt a setup
  */
-void setupHelper() {
+void connect() {
     while (!IS_CONNECTED) {
         if (TRY_CONNECT) {
             std::cout << "Using port " << PORT << std::endl;
 
-            IS_SERVER ? setupServer(PORT) : setupClient(IP_ADDRESS, PORT);
+            // Start session 
+            if (IS_SERVER) {
+                // Create server object
+                myServer = new Server(PORT);
+            } else {
+                // Create client object
+                myClient = new Client(IP_ADDRESS, PORT);
+            }
 
             IS_CONNECTED = true;
             return;
@@ -587,40 +397,12 @@ int main() {
    // Initialize chat history
     chatHistory history;
 
-    // Start setupHelper
-    std::thread setupThread(setupHelper);
+    // Start server-client session
+    connect(); 
 
     runImgui(history);
 
-    // Join setupHelper
-    setupThread.join();
-
-    closeConnections();
+    // closeConnections();
 
     return 0;
-
-    // vector to store active clients 
-    // I THINK CLIENTHANDLER IS A THREAD.. CAN VECTORS HOLD THREADS? 
-    // vector<ClientHandler> activeClientsList;
-
-    // // create clienthandler object 
-
-    // // counter for clients
-    // int clientCount = 0; 
-    
-    // // std::thread setupThread(setupHelper);
-    // std::thread setUpThread(match); 
-
-    // std::cout << "Adding this client to active client list : " 
-    //         + CLIENT << std::endl;
-
-    // // add this client to active clients list
-    // activeClientsList(match); 
-
-    // // start the thread 
-
-
-    // // increment clientCount for new client.
-    // clientCount++; 
-
 }
