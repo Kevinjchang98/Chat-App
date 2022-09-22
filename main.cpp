@@ -178,7 +178,6 @@ void runImgui(std::shared_ptr<chatHistory> history) {
     // Our state
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     bool justSent = true;
-    bool newMessage = true;
     bool isServer = false;
 
     // Init variables for IP address and port number
@@ -290,8 +289,6 @@ void runImgui(std::shared_ptr<chatHistory> history) {
             // TODO: Format chat history
             ImGui::Dummy(ImVec2(0, ImGui::GetContentRegionAvail().y));
 
-            // TODO: Only updates when we send a message, not when one's 
-            // received
             for (chatMessage message : history->getChatHistory()) {
                 ImGui::Spacing();
                 ImGui::TextWrapped("%s", message.getSender().c_str());
@@ -301,9 +298,8 @@ void runImgui(std::shared_ptr<chatHistory> history) {
 
             // TODO: Revise as newMessage is updated in the future; probably
             // need to move setting newMessage to elsewhere in the code
-            if (newMessage || justSent) {
+            if (history->hasNewMessage() || justSent) {
                 ImGui::SetScrollHereY(1.0f);
-                newMessage = false;
             }
 
             ImGui::EndChild();
@@ -402,7 +398,8 @@ void connectHelper(std::shared_ptr<chatHistory> history) {
 
 int main() {
     // Initialize chat history
-    std::shared_ptr<chatHistory> history = std::make_shared<chatHistory>();;
+    std::shared_ptr<chatHistory> history = std::make_shared<chatHistory>();
+    ;
 
     // Start server-client session
     std::thread connectThread(connectHelper, history);

@@ -1,6 +1,6 @@
 #include "chatHistory.h"
 
-chatHistory::chatHistory() {}
+chatHistory::chatHistory() { oldSize = 0; }
 
 chatHistory::~chatHistory() {}
 
@@ -11,3 +11,12 @@ void chatHistory::addMessage(std::string message, std::string sender) {
 }
 
 std::vector<chatMessage> chatHistory::getChatHistory() { return histVec; }
+
+bool chatHistory::hasNewMessage() {
+    if (oldSize != histVec.size()) {
+        oldSize = histVec.size();
+        return true;
+    }
+
+    return false;
+}
