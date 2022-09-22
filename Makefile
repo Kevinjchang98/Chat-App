@@ -15,11 +15,11 @@
 #CXX = clang++
 
 EXE_BASE = chat_app
-IMGUI_DIR = ../..
+IMGUI_DIR = ./imgui
 SOURCES = main.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
-SOURCES += src/Server.cpp src/Client.cpp src/chatMessage.cpp src/chatHistory.cpp
+SOURCES += src/Server.cpp src/Client.cpp src/ChatMessage.cpp src/ChatHistory.cpp
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS = -lGL
@@ -90,12 +90,13 @@ endif
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 all: $(EXE)
-	@echo Build complete for $(ECHO_MESSAGE)
 # Probably a better way to do this, but this works for now
 	rm -rf build
 	mkdir -p build
 	find . -name "*.o" -exec mv {} ./build \;
 	mv $(EXE) ./build
+# Success message
+	@echo Build complete for $(ECHO_MESSAGE)
 
 $(EXE): $(OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)

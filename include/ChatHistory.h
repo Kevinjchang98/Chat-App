@@ -6,19 +6,19 @@
 #include <string>
 #include <vector>
 
-#include "chatMessage.h"
+#include "ChatMessage.h"
 
-class chatHistory {
+class ChatHistory {
    public:
-    chatHistory();
-    ~chatHistory();
+    ChatHistory();
+    ~ChatHistory();
 
     void addMessage(std::string, std::string);
-    std::vector<chatMessage> getChatHistory();
+    std::vector<ChatMessage> getChatHistory();
     bool hasNewMessage();
 
    private:
-    std::vector<chatMessage> histVec;
+    std::vector<ChatMessage> histVec;
     int oldSize;
 };
 

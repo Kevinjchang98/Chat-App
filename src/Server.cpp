@@ -1,25 +1,25 @@
-#include "Server.h"
-
 #include <arpa/inet.h>
-#include <errno.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
+// #include <errno.h>
+// #include <netinet/in.h>
+// #include <stdio.h>
+// #include <stdlib.h>
+#include <cstring>
+// #include <sys/socket.h>
+// #include <sys/types.h>
+// #include <unistd.h>
 
 #include <ctime>
 #include <iostream>
 #include <thread>
+
+#include "Server.h"
 
 /**
  * @brief Construct a new Server:: Server object
  *
  * @param port_no Port number to listen on
  */
-Server::Server(const int port_no, std::shared_ptr<chatHistory> history) {
+Server::Server(const int port_no, std::shared_ptr<ChatHistory> history) {
     std::cout << "Server constructed\n";
     stopListening = false;
     this->history = history;
@@ -106,11 +106,11 @@ void Server::receiveMessage() {
 
         recv(newSd, (char *)&msg, sizeof(msg), 0);
 
-        // Push incoming message to chatHistory
+        // Push incoming message to ChatHistory
         this->history->addMessage(msg, "Client");
     }
 }
-    
+
 /**
  * @brief Stops listening for new messages
  *
