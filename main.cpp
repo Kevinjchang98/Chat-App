@@ -67,17 +67,12 @@ static void glfw_error_callback(int error, const char* description) {
 
 /**
  * @brief Function to handle sending the chat message
- * TODO: Currently just cout's the message
  *
  * @param text Char array of text to be sent
  * @param history The chatlog as a shared_ptr<chatHistory>
  * @return true if successfully sent
  */
 bool handleSend(char* text, std::shared_ptr<chatHistory> history) {
-    // TODO: Replace with desired behavior
-    std::cout << "Send button pressed with text contents: " << text
-              << std::endl;
-
     if (IS_SERVER) {
         myServer->sendMessage(text);
     } else {
@@ -181,8 +176,8 @@ void runImgui(std::shared_ptr<chatHistory> history) {
     bool isServer = false;
 
     // Init variables for IP address and port number
-    char ipAddress[64] = "";
-    char port[8] = "";
+    char ipAddress[64] = "127.0.0.1";
+    char port[8] = "3000";
 
     // Initial text
     char text[TEXT_MESSAGE_SIZE] = "";
@@ -385,7 +380,6 @@ void connectHelper(std::shared_ptr<chatHistory> history) {
                 myServer = std::make_unique<Server>(PORT, history);
             } else {
                 // Create client object
-                // TODO: Remove use of char* in client class
                 myClient = std::make_unique<Client>(IP_ADDRESS, PORT, history);
             }
 
@@ -399,15 +393,13 @@ void connectHelper(std::shared_ptr<chatHistory> history) {
 int main() {
     // Initialize chat history
     std::shared_ptr<chatHistory> history = std::make_shared<chatHistory>();
-    ;
 
     // Start server-client session
     std::thread connectThread(connectHelper, history);
     connectThread.detach();
 
+    // Main GUI loop
     runImgui(history);
-
-    // closeConnections();
 
     return 0;
 }
