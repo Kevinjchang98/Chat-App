@@ -21,8 +21,8 @@ class Server {
     int serverSd;
     int newSd;
     sockaddr_in servAddr;
-    sockaddr_in newSockAddr;
-    socklen_t newSockAddrSize;
+    // sockaddr_in newSockAddr;
+    // socklen_t newSockAddrSize;
     const int MAX_CHAR = 1500;
     std::shared_ptr<ChatHistory> history;
 };

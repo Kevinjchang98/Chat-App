@@ -17,16 +17,6 @@
 #endif
 #include <GLFW/glfw3.h>  // Will drag system OpenGL headers
 
-// Socket programming
-#include <arpa/inet.h>
-#include <errno.h>
-#include <netinet/in.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-
 #include "ChatHistory.h"
 #include "ChatMessage.h"
 #include "Client.h"
