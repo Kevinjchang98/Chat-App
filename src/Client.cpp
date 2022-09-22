@@ -50,6 +50,8 @@ Client::Client(const std::string ip_address, const int port,
                   << (secTilRetry == 1 ? "\n" : "s\n");
 
         std::this_thread::sleep_for(std::chrono::seconds(secTilRetry));
+
+        clientSd = socket(AF_INET, SOCK_STREAM, 0);
     }
 
     std::cout << "Connected to the server!\n";
