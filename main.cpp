@@ -376,7 +376,7 @@ void runImgui(chatHistory history) {
  * option chosen in gui. Constantly checks the TRY_CONNECT bool until it's time
  * to attempt a setup
  */
-void connectHelper() {
+void connectHelper(chatHistory* history) {
     while (!IS_CONNECTED) {
         if (TRY_CONNECT) {
             std::cout << "Using port " << PORT << std::endl;
@@ -384,7 +384,7 @@ void connectHelper() {
             // Start session
             if (IS_SERVER) {
                 // Create server object
-                myServer = std::make_unique<Server>(PORT);
+                myServer = std::make_unique<Server>(PORT, history);
             } else {
                 // Create client object
                 // TODO: Remove use of char* in client class
@@ -403,7 +403,7 @@ int main() {
     chatHistory history;
 
     // Start server-client session
-    std::thread connectThread(connectHelper);
+    std::thread connectThread(connectHelper, &history);
     connectThread.detach();
 
     runImgui(history);

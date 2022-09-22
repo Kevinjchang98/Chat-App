@@ -19,9 +19,10 @@
  *
  * @param port_no Port number to listen on
  */
-Server::Server(const int port_no) {
+Server::Server(const int port_no, chatHistory* history) {
     std::cout << "Server constructed\n";
     stopListening = false;
+    this->history = history;
 
     // Setup a socket and connection tools
     // bzero((char *)&servAddr, sizeof(servAddr));
@@ -66,7 +67,7 @@ Server::Server(const int port_no) {
     // Create new thread to listen for incoming messages
     std::cout << "Creating listen thread" << std::endl;
 
-    std::thread listener([this] { this->receiveMessage(); });
+    std::thread listener([this]{ this->receiveMessage(); });
     listener.detach();
 }
 
@@ -111,6 +112,8 @@ void Server::receiveMessage() {
         // }
 
         std::cout << t << "Client: " << msg << std::endl;
+        // TODO: Not actually adding properly; confirm correct pointer passing
+        history->addMessage(msg, "Client");
     }
 
     std::cout << "Server stopped listening\n";
