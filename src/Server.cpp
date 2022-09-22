@@ -3,7 +3,7 @@
 // #include <netinet/in.h>
 // #include <stdio.h>
 // #include <stdlib.h>
-// #include <string.h>
+#include <cstring>
 // #include <sys/socket.h>
 // #include <sys/types.h>
 // #include <unistd.h>
@@ -85,10 +85,10 @@ Server::~Server() { std::cout << "Server() destroyed"; }
 void Server::sendMessage(const std::string data) {
     char msg[MAX_CHAR];
 
-    std::memset(&msg, 0, sizeof(msg));  // clear the buffer
-    std::strcpy(msg, data.c_str());     // copy from data to msg buffer
+    memset(&msg, 0, sizeof(msg));  // clear the buffer
+    strcpy(msg, data.c_str());     // copy from data to msg buffer
 
-    send(newSd, (char *)&msg, std::strlen(msg), 0);
+    send(newSd, (char *)&msg, strlen(msg), 0);
 }
 
 /**
@@ -102,7 +102,7 @@ void Server::receiveMessage() {
     char *t = ctime(&time_now);
 
     while (!stopListening) {
-        std::memset(&msg, 0, sizeof(msg));  // clear the buffer
+        memset(&msg, 0, sizeof(msg));  // clear the buffer
 
         recv(newSd, (char *)&msg, sizeof(msg), 0);
 
