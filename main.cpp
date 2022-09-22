@@ -212,7 +212,6 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
          * @brief Shows connection window if not connected, otherwise show
          * basic chat window
          */
-
         switch (CURR_SCREEN) {
             case login:
                 // Initial connection screen
@@ -247,7 +246,7 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
 
                 // Exit button TODO: interrupt and exit properly
                 if (ImGui::Button("Exit")) {
-                    break;
+                    glfwSetWindowShouldClose(window, GLFW_TRUE);
                 }
 
                 ImGui::End();
@@ -263,7 +262,7 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
 
                 // Exit button TODO: interrupt and exit properly
                 if (ImGui::Button("Exit")) {
-                    break;
+                    glfwSetWindowShouldClose(window, GLFW_TRUE);
                 }
 
                 ImGui::End();
@@ -333,7 +332,7 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
                 ImGui::SameLine(ImGui::GetWindowWidth() - 44);
 
                 if (ImGui::Button("Exit")) {
-                    break;
+                    glfwSetWindowShouldClose(window, GLFW_TRUE);
                 }
 
                 ImGui::End();
@@ -377,8 +376,7 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
 
 /**
  * @brief Runs the appropriate setup method for server or client depending on
- * option chosen in gui. Constantly checks the TRY_CONNECT bool until it's time
- * to attempt a setup
+ * option chosen in gui. Waits until ATTEMPT_CONNECT semaphore lets us connect
  */
 void connectHelper(std::shared_ptr<ChatHistory> history) {
     ATTEMPT_CONNECT.acquire();
