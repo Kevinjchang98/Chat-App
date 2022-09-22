@@ -29,8 +29,8 @@
 
 #include "Client.h"
 #include "Server.h"
-#include "chatHistory.h"
-#include "chatMessage.h"
+#include "ChatHistory.h"
+#include "ChatMessage.h"
 
 // Global pointers to the Client and Server objects
 std::unique_ptr<Server> myServer;
@@ -69,10 +69,10 @@ static void glfw_error_callback(int error, const char* description) {
  * @brief Function to handle sending the chat message
  *
  * @param text Char array of text to be sent
- * @param history The chatlog as a shared_ptr<chatHistory>
+ * @param history The chatlog as a shared_ptr<ChatHistory>
  * @return true if successfully sent
  */
-bool handleSend(char* text, std::shared_ptr<chatHistory> history) {
+bool handleSend(char* text, std::shared_ptr<ChatHistory> history) {
     if (IS_SERVER) {
         myServer->sendMessage(text);
     } else {
@@ -93,7 +93,7 @@ bool handleSend(char* text, std::shared_ptr<chatHistory> history) {
 /**
  * @brief Main ImGUI loop
  */
-void runImgui(std::shared_ptr<chatHistory> history) {
+void runImgui(std::shared_ptr<ChatHistory> history) {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit()) return;
@@ -284,7 +284,7 @@ void runImgui(std::shared_ptr<chatHistory> history) {
             // TODO: Format chat history
             ImGui::Dummy(ImVec2(0, ImGui::GetContentRegionAvail().y));
 
-            for (chatMessage message : history->getChatHistory()) {
+            for (ChatMessage message : history->getChatHistory()) {
                 ImGui::Spacing();
                 ImGui::TextWrapped("%s", message.getSender().c_str());
                 ImGui::TextWrapped("%s",
@@ -369,7 +369,7 @@ void runImgui(std::shared_ptr<chatHistory> history) {
  * option chosen in gui. Constantly checks the TRY_CONNECT bool until it's time
  * to attempt a setup
  */
-void connectHelper(std::shared_ptr<chatHistory> history) {
+void connectHelper(std::shared_ptr<ChatHistory> history) {
     while (!IS_CONNECTED) {
         if (TRY_CONNECT) {
             std::cout << "Using port " << PORT << std::endl;
@@ -392,7 +392,7 @@ void connectHelper(std::shared_ptr<chatHistory> history) {
 
 int main() {
     // Initialize chat history
-    std::shared_ptr<chatHistory> history = std::make_shared<chatHistory>();
+    std::shared_ptr<ChatHistory> history = std::make_shared<ChatHistory>();
 
     // Start server-client session
     std::thread connectThread(connectHelper, history);

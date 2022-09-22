@@ -1,18 +1,18 @@
-#include "chatHistory.h"
+#include "ChatHistory.h"
 
-chatHistory::chatHistory() { oldSize = 0; }
+ChatHistory::ChatHistory() { oldSize = 0; }
 
-chatHistory::~chatHistory() {}
+ChatHistory::~ChatHistory() {}
 
-void chatHistory::addMessage(std::string message, std::string sender) {
-    chatMessage newMessage;
+void ChatHistory::addMessage(std::string message, std::string sender) {
+    ChatMessage newMessage;
     newMessage.setMessage(message, sender);
     histVec.push_back(newMessage);
 }
 
-std::vector<chatMessage> chatHistory::getChatHistory() { return histVec; }
+std::vector<ChatMessage> ChatHistory::getChatHistory() { return histVec; }
 
-bool chatHistory::hasNewMessage() {
+bool ChatHistory::hasNewMessage() {
     if (oldSize != histVec.size()) {
         oldSize = histVec.size();
         return true;

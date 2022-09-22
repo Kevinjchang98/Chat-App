@@ -21,7 +21,7 @@
  * @param port Port number to connect to
  */
 Client::Client(const std::string ip_address, const int port,
-               std::shared_ptr<chatHistory> history) {
+               std::shared_ptr<ChatHistory> history) {
     std::cout << "Client constructed\n";
     stopListening = false;
     this->history = history;
@@ -85,7 +85,7 @@ void Client::receiveMessage() {
 
         recv(clientSd, (char *)&msg, sizeof(msg), 0);
 
-        // Push incoming message to chatHistory
+        // Push incoming message to ChatHistory
         this->history->addMessage(msg, "Server");
     }
 

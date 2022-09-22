@@ -5,11 +5,11 @@
 
 #include <string>
 
-class chatMessage {
+class ChatMessage {
    public:
-    chatMessage();
-    chatMessage(std::string, std::string);
-    ~chatMessage();
+    ChatMessage();
+    ChatMessage(std::string, std::string);
+    ~ChatMessage();
 
     void setMessage(std::string);
     void setMessage(std::string, std::string);

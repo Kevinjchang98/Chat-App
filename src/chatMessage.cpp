@@ -1,31 +1,31 @@
-#include "chatMessage.h"
+#include "ChatMessage.h"
 
-chatMessage::chatMessage() {
+ChatMessage::ChatMessage() {
     message = "";
     sender = "Unknown";
     // timestamp = time(NULL);
 }
 
-chatMessage::chatMessage(std::string inMessage, std::string inSender) {
+ChatMessage::ChatMessage(std::string inMessage, std::string inSender) {
     setMessage(inMessage, inSender);
     // timestamp = time(NULL);
 }
 
-chatMessage::~chatMessage() {}
+ChatMessage::~ChatMessage() {}
 
-void chatMessage::setMessage(std::string input) { message = input; }
+void ChatMessage::setMessage(std::string input) { message = input; }
 
-void chatMessage::setMessage(std::string inMessage, std::string inSender) {
+void ChatMessage::setMessage(std::string inMessage, std::string inSender) {
     message = inMessage;
     sender = inSender;
 }
 
-void chatMessage::setSender(std::string input) { sender = input; }
+void ChatMessage::setSender(std::string input) { sender = input; }
 
-// void chatMessage::setTime() { timestamp = time(NULL); }
+// void ChatMessage::setTime() { timestamp = time(NULL); }
 
-std::string chatMessage::getMessage() { return message; }
+std::string ChatMessage::getMessage() { return message; }
 
-std::string chatMessage::getSender() { return sender; }
+std::string ChatMessage::getSender() { return sender; }
 
-// std::time_t chatMessage::getTimestamp() { return timestamp; }
+// std::time_t ChatMessage::getTimestamp() { return timestamp; }
