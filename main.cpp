@@ -390,7 +390,7 @@ void connectHelper(std::shared_ptr<chatHistory> history) {
             } else {
                 // Create client object
                 // TODO: Remove use of char* in client class
-                myClient = std::make_unique<Client>(IP_ADDRESS, PORT);
+                myClient = std::make_unique<Client>(IP_ADDRESS, PORT, history);
             }
 
             IS_CONNECTED = true;

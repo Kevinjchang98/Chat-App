@@ -67,7 +67,7 @@ Server::Server(const int port_no, std::shared_ptr<chatHistory> history) {
     // Create new thread to listen for incoming messages
     std::cout << "Creating listen thread" << std::endl;
 
-    std::thread listener([this]{ this->receiveMessage(); });
+    std::thread listener([this] { this->receiveMessage(); });
     listener.detach();
 }
 
@@ -112,12 +112,12 @@ void Server::receiveMessage() {
         // }
 
         std::cout << t << "Client: " << msg << std::endl;
-        history->addMessage(msg, "Client");
+
+        // Push incoming message to chatHistory
+        this->history->addMessage(msg, "Client");
     }
-
-    std::cout << "Server stopped listening\n";
 }
-
+    
 /**
  * @brief Stops listening for new messages
  *
