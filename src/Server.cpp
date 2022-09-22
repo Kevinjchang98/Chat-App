@@ -19,9 +19,10 @@
  *
  * @param port_no Port number to listen on
  */
-Server::Server(int port_no) {
+Server::Server(const int port_no, std::shared_ptr<chatHistory> history) {
     std::cout << "Server constructed\n";
     stopListening = false;
+    this->history = history;
 
     // Setup a socket and connection tools
     // bzero((char *)&servAddr, sizeof(servAddr));
@@ -81,7 +82,7 @@ Server::~Server() { std::cout << "Server() destroyed"; }
  *
  * @param data Message to be sent as a string.
  */
-void Server::sendMessage(std::string data) {
+void Server::sendMessage(const std::string data) {
     char msg[MAX_CHAR];
 
     memset(&msg, 0, sizeof(msg));  // clear the buffer
@@ -111,11 +112,12 @@ void Server::receiveMessage() {
         // }
 
         std::cout << t << "Client: " << msg << std::endl;
+
+        // Push incoming message to chatHistory
+        this->history->addMessage(msg, "Client");
     }
-
-    std::cout << "Server stopped listening\n";
 }
-
+    
 /**
  * @brief Stops listening for new messages
  *

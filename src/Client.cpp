@@ -11,7 +11,6 @@
 #include <unistd.h>
 
 #include <ctime>
-
 #include <iostream>
 #include <thread>
 
@@ -21,15 +20,18 @@
  * @param ip_address IP address to connect to
  * @param port Port number to connect to
  */
-Client::Client(char* ip_address, int port) {
+Client::Client(const std::string ip_address, const int port,
+               std::shared_ptr<chatHistory> history) {
     std::cout << "Client constructed\n";
-    stopListening = false; 
+    stopListening = false;
+    this->history = history;
 
     // Setup a socket and connection tools
     // bzero((char *)&sendSockAddr, sizeof(sendSockAddr));
-    sendSockAddr = {}; // TODO: Verify same behavior as bzero();
+    sendSockAddr = {};  // TODO: Verify same behavior as bzero();
     sendSockAddr.sin_family = AF_INET;
-    sendSockAddr.sin_addr.s_addr = inet_addr(ip_address);
+    sendSockAddr.sin_addr.s_addr =
+        inet_addr(const_cast<char *>(ip_address.c_str()));
     sendSockAddr.sin_port = htons(port);
     clientSd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -57,13 +59,13 @@ Client::~Client() { std::cout << "Client object destroyed\n"; }
 /**
  * @brief Send a single message
  *
- * @param data Message to be sent as string. 
+ * @param data Message to be sent as string.
  */
-void Client::sendMessage(std::string data) {
+void Client::sendMessage(const std::string data) {
     char msg[MAX_CHAR];
 
-    memset(&msg, 0, sizeof(msg));   // clear the buffer
-    strcpy(msg, data.c_str());      // copy from data to msg buffer 
+    memset(&msg, 0, sizeof(msg));  // clear the buffer
+    strcpy(msg, data.c_str());     // copy from data to msg buffer
 
     send(clientSd, (char *)&msg, strlen(msg), 0);
 }
@@ -75,8 +77,8 @@ void Client::sendMessage(std::string data) {
 void Client::receiveMessage() {
     char msg[MAX_CHAR];
 
-    std::time_t time_now = std::time(nullptr); 
-    char* t = ctime(&time_now); 
+    std::time_t time_now = std::time(nullptr);
+    char *t = ctime(&time_now);
 
     while (!stopListening) {
         memset(&msg, 0, sizeof(msg));  // clear the buffer
@@ -89,6 +91,9 @@ void Client::receiveMessage() {
         // }
 
         std::cout << t << "Server: " << msg << std::endl;
+
+        // Push incoming message to chatHistory
+        this->history->addMessage(msg, "Server");
     }
 
     std::cout << "Client stopped listening\n";

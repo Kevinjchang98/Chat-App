@@ -33,8 +33,8 @@
 #include "chatMessage.h"
 
 // Global pointers to the Client and Server objects
-Server* myServer;
-Client* myClient;
+std::unique_ptr<Server> myServer;
+std::unique_ptr<Client> myClient;
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to
 // maximize ease of testing and compatibility with old VS compilers. To link
@@ -70,13 +70,19 @@ static void glfw_error_callback(int error, const char* description) {
  * TODO: Currently just cout's the message
  *
  * @param text Char array of text to be sent
- * @param history The chatlog as a chatHistory*
+ * @param history The chatlog as a shared_ptr<chatHistory>
  * @return true if successfully sent
  */
-bool handleSend(char* text, chatHistory* history) {
+bool handleSend(char* text, std::shared_ptr<chatHistory> history) {
     // TODO: Replace with desired behavior
     std::cout << "Send button pressed with text contents: " << text
               << std::endl;
+
+    if (IS_SERVER) {
+        myServer->sendMessage(text);
+    } else {
+        myClient->sendMessage(text);
+    }
 
     // TODO: Probably want to only add to chat history once the message has been
     // sent. Also don't hardcode "Me" as the sender
@@ -92,7 +98,7 @@ bool handleSend(char* text, chatHistory* history) {
 /**
  * @brief Main ImGUI loop
  */
-void runImgui(chatHistory history) {
+void runImgui(std::shared_ptr<chatHistory> history) {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit()) return;
@@ -175,6 +181,13 @@ void runImgui(chatHistory history) {
     bool newMessage = true;
     bool isServer = false;
 
+    // Init variables for IP address and port number
+    char ipAddress[64] = "";
+    char port[8] = "";
+
+    // Initial text
+    char text[TEXT_MESSAGE_SIZE] = "";
+
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         // Poll and handle events (inputs, window resize, etc.)
@@ -201,12 +214,6 @@ void runImgui(chatHistory history) {
          */
         if (!IS_CONNECTED && !TRY_CONNECT) {
             // Initial connection screen
-
-            // Init variables for IP address and port number
-            // TODO: Probably directly change global state
-            char ipAddress[64] = "";
-            char port[8] = "";
-
             // Make window take up full system window
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::SetNextWindowSize(io.DisplaySize);
@@ -244,7 +251,6 @@ void runImgui(chatHistory history) {
 
         } else if (TRY_CONNECT && !IS_CONNECTED) {
             // Is loading
-
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::SetNextWindowSize(io.DisplaySize);
 
@@ -284,7 +290,9 @@ void runImgui(chatHistory history) {
             // TODO: Format chat history
             ImGui::Dummy(ImVec2(0, ImGui::GetContentRegionAvail().y));
 
-            for (chatMessage message : history.getChatHistory()) {
+            // TODO: Only updates when we send a message, not when one's 
+            // received
+            for (chatMessage message : history->getChatHistory()) {
                 ImGui::Spacing();
                 ImGui::TextWrapped("%s", message.getSender().c_str());
                 ImGui::TextWrapped("%s",
@@ -300,9 +308,6 @@ void runImgui(chatHistory history) {
 
             ImGui::EndChild();
             ImGui::PopStyleVar();
-
-            // Initial text
-            char text[TEXT_MESSAGE_SIZE];  // = ""
 
             // Text input area flags
             ImGuiInputTextFlags input_flags =
@@ -320,7 +325,7 @@ void runImgui(chatHistory history) {
                                           ImVec2(-FLT_MIN, TEXTBOX_HEIGHT),
                                           input_flags) ||
                 ImGui::Button("Send")) {
-                justSent = handleSend(text, &history);
+                justSent = handleSend(text, history);
             };
 
             // Exit button
@@ -373,7 +378,7 @@ void runImgui(chatHistory history) {
  * option chosen in gui. Constantly checks the TRY_CONNECT bool until it's time
  * to attempt a setup
  */
-void connectHelper() {
+void connectHelper(std::shared_ptr<chatHistory> history) {
     while (!IS_CONNECTED) {
         if (TRY_CONNECT) {
             std::cout << "Using port " << PORT << std::endl;
@@ -381,12 +386,11 @@ void connectHelper() {
             // Start session
             if (IS_SERVER) {
                 // Create server object
-                myServer = new Server(PORT);
+                myServer = std::make_unique<Server>(PORT, history);
             } else {
                 // Create client object
                 // TODO: Remove use of char* in client class
-                myClient = 
-                    new Client(const_cast<char*>(IP_ADDRESS.c_str()), PORT);
+                myClient = std::make_unique<Client>(IP_ADDRESS, PORT, history);
             }
 
             IS_CONNECTED = true;
@@ -398,10 +402,10 @@ void connectHelper() {
 
 int main() {
     // Initialize chat history
-    chatHistory history;
+    std::shared_ptr<chatHistory> history = std::make_shared<chatHistory>();;
 
     // Start server-client session
-    std::thread connectThread(connectHelper);
+    std::thread connectThread(connectHelper, history);
     connectThread.detach();
 
     runImgui(history);

@@ -1,6 +1,7 @@
 #include <netinet/in.h>
 
 #include <thread>
+#include <chatHistory.h>
 
 #ifndef CLIENT_H
 #define CLIENT_H
@@ -9,9 +10,10 @@
 
 class Client {
    public:
-    Client(char* ip_address, int port);
+    Client(const std::string ip_address, const int port,
+           std::shared_ptr<chatHistory>);
     ~Client();
-    void sendMessage(std::string message);
+    void sendMessage(const std::string message);
     void receiveMessage();
     void stop();
 
@@ -20,7 +22,8 @@ class Client {
     sockaddr_in sendSockAddr;
     int serverSock;
     int clientSd;
-    int MAX_CHAR = 1500; 
+    const int MAX_CHAR = 1500;
+    std::shared_ptr<chatHistory> history;
 };
 
 #endif /* CLIENT_H */

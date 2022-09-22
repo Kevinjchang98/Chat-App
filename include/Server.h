@@ -1,3 +1,4 @@
+#include <chatHistory.h>
 #include <netinet/in.h>
 
 #include <thread>
@@ -9,9 +10,9 @@
 
 class Server {
    public:
-    Server(int port_no);
+    Server(const int port_no, std::shared_ptr<chatHistory> history);
     ~Server();
-    void sendMessage(std::string data);
+    void sendMessage(const std::string data);
     void receiveMessage();
     void stop();
 
@@ -22,7 +23,8 @@ class Server {
     sockaddr_in servAddr;
     sockaddr_in newSockAddr;
     socklen_t newSockAddrSize;
-    int MAX_CHAR = 1500;
+    const int MAX_CHAR = 1500;
+    std::shared_ptr<chatHistory> history;
 };
 
 #endif /* SERVER_H */
