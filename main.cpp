@@ -70,10 +70,10 @@ static void glfw_error_callback(int error, const char* description) {
  * TODO: Currently just cout's the message
  *
  * @param text Char array of text to be sent
- * @param history The chatlog as a chatHistory*
+ * @param history The chatlog as a shared_ptr<chatHistory>
  * @return true if successfully sent
  */
-bool handleSend(char* text, chatHistory* history) {
+bool handleSend(char* text, std::shared_ptr<chatHistory> history) {
     // TODO: Replace with desired behavior
     std::cout << "Send button pressed with text contents: " << text
               << std::endl;
@@ -98,7 +98,7 @@ bool handleSend(char* text, chatHistory* history) {
 /**
  * @brief Main ImGUI loop
  */
-void runImgui(chatHistory history) {
+void runImgui(std::shared_ptr<chatHistory> history) {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit()) return;
@@ -290,7 +290,9 @@ void runImgui(chatHistory history) {
             // TODO: Format chat history
             ImGui::Dummy(ImVec2(0, ImGui::GetContentRegionAvail().y));
 
-            for (chatMessage message : history.getChatHistory()) {
+            // TODO: Only updates when we send a message, not when one's 
+            // received
+            for (chatMessage message : history->getChatHistory()) {
                 ImGui::Spacing();
                 ImGui::TextWrapped("%s", message.getSender().c_str());
                 ImGui::TextWrapped("%s",
@@ -323,7 +325,7 @@ void runImgui(chatHistory history) {
                                           ImVec2(-FLT_MIN, TEXTBOX_HEIGHT),
                                           input_flags) ||
                 ImGui::Button("Send")) {
-                justSent = handleSend(text, &history);
+                justSent = handleSend(text, history);
             };
 
             // Exit button
@@ -376,7 +378,7 @@ void runImgui(chatHistory history) {
  * option chosen in gui. Constantly checks the TRY_CONNECT bool until it's time
  * to attempt a setup
  */
-void connectHelper(chatHistory* history) {
+void connectHelper(std::shared_ptr<chatHistory> history) {
     while (!IS_CONNECTED) {
         if (TRY_CONNECT) {
             std::cout << "Using port " << PORT << std::endl;
@@ -400,10 +402,10 @@ void connectHelper(chatHistory* history) {
 
 int main() {
     // Initialize chat history
-    chatHistory history;
+    std::shared_ptr<chatHistory> history = std::make_shared<chatHistory>();;
 
     // Start server-client session
-    std::thread connectThread(connectHelper, &history);
+    std::thread connectThread(connectHelper, history);
     connectThread.detach();
 
     runImgui(history);

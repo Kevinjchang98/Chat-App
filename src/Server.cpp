@@ -19,7 +19,7 @@
  *
  * @param port_no Port number to listen on
  */
-Server::Server(const int port_no, chatHistory* history) {
+Server::Server(const int port_no, std::shared_ptr<chatHistory> history) {
     std::cout << "Server constructed\n";
     stopListening = false;
     this->history = history;
@@ -112,7 +112,6 @@ void Server::receiveMessage() {
         // }
 
         std::cout << t << "Client: " << msg << std::endl;
-        // TODO: Not actually adding properly; confirm correct pointer passing
         history->addMessage(msg, "Client");
     }
 

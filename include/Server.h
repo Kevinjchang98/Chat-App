@@ -10,7 +10,7 @@
 
 class Server {
    public:
-    Server(const int port_no, chatHistory*);
+    Server(const int port_no, std::shared_ptr<chatHistory> history);
     ~Server();
     void sendMessage(const std::string data);
     void receiveMessage();
@@ -24,7 +24,7 @@ class Server {
     sockaddr_in newSockAddr;
     socklen_t newSockAddrSize;
     const int MAX_CHAR = 1500;
-    chatHistory* history;
+    std::shared_ptr<chatHistory> history;
 };
 
 #endif /* SERVER_H */
