@@ -85,8 +85,9 @@ void Client::receiveMessage() {
 
         recv(clientSd, (char *)&msg, sizeof(msg), 0);
 
-        // Push incoming message to ChatHistory
-        this->history->addMessage(msg, "Server");
+        if (msg[0] != '\0')
+            // Push incoming message to ChatHistory
+            this->history->addMessage(msg, "Server");
     }
 
     std::cout << "Client stopped listening\n";
