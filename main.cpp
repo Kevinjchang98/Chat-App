@@ -27,10 +27,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "Client.h"
-#include "Server.h"
 #include "ChatHistory.h"
 #include "ChatMessage.h"
+#include "Client.h"
+#include "Server.h"
 
 // Global pointers to the Client and Server objects
 std::unique_ptr<Server> myServer;
@@ -92,7 +92,7 @@ bool handleSend(char* text, std::shared_ptr<ChatHistory> history) {
 
 /**
  * @brief Checks if IP_ADDRESS and PORT global variables are valid
- * 
+ *
  * @return true If both are valid
  * @return false If at least one is invalid
  */

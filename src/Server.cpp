@@ -1,5 +1,3 @@
-#include "Server.h"
-
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netinet/in.h>
@@ -13,6 +11,8 @@
 #include <ctime>
 #include <iostream>
 #include <thread>
+
+#include "Server.h"
 
 /**
  * @brief Construct a new Server:: Server object
@@ -110,7 +110,7 @@ void Server::receiveMessage() {
         this->history->addMessage(msg, "Client");
     }
 }
-    
+
 /**
  * @brief Stops listening for new messages
  *
