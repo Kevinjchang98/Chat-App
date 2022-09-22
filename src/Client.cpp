@@ -3,6 +3,7 @@
 // #include <netinet/in.h>
 // #include <stdio.h>
 // #include <stdlib.h>
+#include <chrono>
 #include <cstring>
 // #include <sys/socket.h>
 // #include <sys/types.h>
@@ -35,16 +36,26 @@ Client::Client(const std::string ip_address, const int port,
     sendSockAddr.sin_port = htons(port);
     clientSd = socket(AF_INET, SOCK_STREAM, 0);
 
-    // Try to connect...
-    int status =
-        connect(clientSd, (sockaddr *)&sendSockAddr, sizeof(sendSockAddr));
-    if (status < 0) {
-        std::cout << "Error connecting to socket!" << std::endl;
+    // TODO: Verify it's okay to repeatedly call connect()
+    // Try to connect; if unable, retry repeatedly
+    int attemptNumber = 0;
+    int secTilRetry = 1;
+    while (connect(clientSd, (sockaddr *)&sendSockAddr, sizeof(sendSockAddr)) <
+           0) {
+        secTilRetry = ++attemptNumber < 10 ? 1 : attemptNumber < 20 ? 5 : 30;
+
+        std::cout << attemptNumber
+                  << " - Error connecting to socket! Trying again in "
+                  << secTilRetry << " second"
+                  << (secTilRetry == 1 ? "\n" : "s\n");
+
+        std::this_thread::sleep_for(std::chrono::seconds(secTilRetry));
     }
-    std::cout << "Connected to the server!" << std::endl;
+
+    std::cout << "Connected to the server!\n";
 
     // Create new thread to listen for incoming messages
-    std::cout << "Creating listen thread" << std::endl;
+    std::cout << "Creating listen thread\n";
 
     std::thread listener([this] { this->receiveMessage(); });
     listener.detach();
