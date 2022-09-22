@@ -91,6 +91,17 @@ bool handleSend(char* text, std::shared_ptr<ChatHistory> history) {
 }
 
 /**
+ * @brief Checks if IP_ADDRESS and PORT global variables are valid
+ * 
+ * @return true If both are valid
+ * @return false If at least one is invalid
+ */
+bool connectionDataIsValid() {
+    // TODO: Check IP_ADDRESS and PORT are valid in format
+    return true;
+}
+
+/**
  * @brief Main ImGUI loop
  */
 void runImgui(std::shared_ptr<ChatHistory> history) {
@@ -227,8 +238,8 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
                              ImGuiInputTextFlags_CharsDecimal);
 
             // Button to connect
-            if (ImGui::Button("Connect")) {
-                std::cout << "Connect button clicked" << std::endl;
+            if (ImGui::Button("Connect") && connectionDataIsValid()) {
+                std::cout << "Attempting to connect" << std::endl;
 
                 IP_ADDRESS = ipAddress;
                 PORT = std::atoi(port);
