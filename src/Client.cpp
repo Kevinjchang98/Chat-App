@@ -64,10 +64,10 @@ Client::~Client() { std::cout << "Client object destroyed\n"; }
 void Client::sendMessage(const std::string data) {
     char msg[MAX_CHAR];
 
-    memset(&msg, 0, sizeof(msg));  // clear the buffer
-    strcpy(msg, data.c_str());     // copy from data to msg buffer
+    std::memset(&msg, 0, sizeof(msg));  // clear the buffer
+    std::strcpy(msg, data.c_str());     // copy from data to msg buffer
 
-    send(clientSd, (char *)&msg, strlen(msg), 0);
+    send(clientSd, (char *)&msg, std::strlen(msg), 0);
 }
 
 /**
@@ -81,7 +81,7 @@ void Client::receiveMessage() {
     char *t = ctime(&time_now);
 
     while (!stopListening) {
-        memset(&msg, 0, sizeof(msg));  // clear the buffer
+        std::memset(&msg, 0, sizeof(msg));  // clear the buffer
 
         recv(clientSd, (char *)&msg, sizeof(msg), 0);
 
