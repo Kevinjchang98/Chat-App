@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include <iostream>  // TODO: Remove later when not needed
+#include <semaphore>
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -48,11 +49,12 @@ constexpr int TEXT_MESSAGE_SIZE = 1024 * 8;
 constexpr int INIT_WINDOW_WIDTH = 400;
 constexpr int INIT_WINDOW_HEIGHT = 720;
 
+enum screen { login, connecting, chat };
+screen CURR_SCREEN = login;
 int PORT = -1;
 std::string IP_ADDRESS = "";
-bool TRY_CONNECT = false;
+std::counting_semaphore<1> ATTEMPT_CONNECT(0);
 bool IS_SERVER = false;
-bool IS_CONNECTED = false;
 
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -210,127 +212,132 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
          * @brief Shows connection window if not connected, otherwise show
          * basic chat window
          */
-        if (!IS_CONNECTED && !TRY_CONNECT) {
-            // Initial connection screen
-            // Make window take up full system window
-            ImGui::SetNextWindowPos(ImVec2(0, 0));
-            ImGui::SetNextWindowSize(io.DisplaySize);
 
-            // Create a window
-            ImGui::Begin("Connect");
+        switch (CURR_SCREEN) {
+            case login:
+                // Initial connection screen
+                // Make window take up full system window
+                ImGui::SetNextWindowPos(ImVec2(0, 0));
+                ImGui::SetNextWindowSize(io.DisplaySize);
 
-            // Create a checkbox for whether to run server or client setup
-            ImGui::Checkbox("Server", &isServer);
+                // Create a window
+                ImGui::Begin("Connect");
 
-            // Input box for IP Address
-            ImGui::InputText("IP Address", ipAddress, 64,
-                             ImGuiInputTextFlags_CharsDecimal);
+                // Create a checkbox for whether to run server or client setup
+                ImGui::Checkbox("Server", &isServer);
 
-            // Input box for Port number
-            ImGui::InputText("Port", port, 64,
-                             ImGuiInputTextFlags_CharsDecimal);
+                // Input box for IP Address
+                ImGui::InputText("IP Address", ipAddress, 64,
+                                 ImGuiInputTextFlags_CharsDecimal);
 
-            // Button to connect
-            if (ImGui::Button("Connect") && connectionDataIsValid()) {
-                std::cout << "Attempting to connect" << std::endl;
+                // Input box for Port number
+                ImGui::InputText("Port", port, 64,
+                                 ImGuiInputTextFlags_CharsDecimal);
 
-                IP_ADDRESS = ipAddress;
-                PORT = std::atoi(port);
-                IS_SERVER = isServer;
-                TRY_CONNECT = true;
-            };
+                // Button to connect
+                if (ImGui::Button("Connect") && connectionDataIsValid()) {
+                    std::cout << "Attempting to connect" << std::endl;
 
-            // Exit button TODO: interrupt and exit properly
-            if (ImGui::Button("Exit")) {
+                    IP_ADDRESS = ipAddress;
+                    PORT = std::atoi(port);
+                    IS_SERVER = isServer;
+                    ATTEMPT_CONNECT.release();
+                    CURR_SCREEN = connecting;
+                };
+
+                // Exit button TODO: interrupt and exit properly
+                if (ImGui::Button("Exit")) {
+                    break;
+                }
+
+                ImGui::End();
                 break;
-            }
+            case connecting:
+                // Is connecting
+                ImGui::SetNextWindowPos(ImVec2(0, 0));
+                ImGui::SetNextWindowSize(io.DisplaySize);
 
-            ImGui::End();
+                ImGui::Begin("Connecting");
 
-        } else if (TRY_CONNECT && !IS_CONNECTED) {
-            // Is loading
-            ImGui::SetNextWindowPos(ImVec2(0, 0));
-            ImGui::SetNextWindowSize(io.DisplaySize);
+                ImGui::Text("Setting up connection");
 
-            ImGui::Begin("Connecting");
+                // Exit button TODO: interrupt and exit properly
+                if (ImGui::Button("Exit")) {
+                    break;
+                }
 
-            ImGui::Text("Setting up connection");
-
-            // Exit button TODO: interrupt and exit properly
-            if (ImGui::Button("Exit")) {
+                ImGui::End();
                 break;
-            }
+            case chat:
+                // Is connected
+                int TEXTBOX_HEIGHT = ImGui::GetTextLineHeight() * 4;
 
-            ImGui::End();
-        } else {
-            // Is connected
-            int TEXTBOX_HEIGHT = ImGui::GetTextLineHeight() * 4;
+                // Make window take up full system window
+                ImGui::SetNextWindowPos(ImVec2(0, 0));
+                ImGui::SetNextWindowSize(io.DisplaySize);
 
-            // Make window take up full system window
-            ImGui::SetNextWindowPos(ImVec2(0, 0));
-            ImGui::SetNextWindowSize(io.DisplaySize);
+                // Create window
+                // TODO: Probably rename this to currently connected IP or
+                // something
+                ImGui::Begin("Chat box");
 
-            // Create window
-            // TODO: Probably rename this to currently connected IP or
-            // something
-            ImGui::Begin("Chat box");
+                // Child window scrollable area
+                ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
 
-            // Child window scrollable area
-            ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
+                ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
+                ImGui::BeginChild(
+                    "ChildR",
+                    ImVec2(0, ImGui::GetContentRegionAvail().y -
+                                  TEXTBOX_HEIGHT - 27),  // 27 for send button
+                    true, window_flags);
 
-            ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-            ImGui::BeginChild(
-                "ChildR",
-                ImVec2(0, ImGui::GetContentRegionAvail().y - TEXTBOX_HEIGHT -
-                              27),  // 27 for send button
-                true, window_flags);
+                // TODO: Format chat history
+                ImGui::Dummy(ImVec2(0, ImGui::GetContentRegionAvail().y));
 
-            // TODO: Format chat history
-            ImGui::Dummy(ImVec2(0, ImGui::GetContentRegionAvail().y));
+                for (ChatMessage message : history->getChatHistory()) {
+                    ImGui::Spacing();
+                    ImGui::TextWrapped("%s", message.getSender().c_str());
+                    ImGui::TextWrapped("%s",
+                                       ("    " + message.getMessage()).c_str());
+                }
 
-            for (ChatMessage message : history->getChatHistory()) {
-                ImGui::Spacing();
-                ImGui::TextWrapped("%s", message.getSender().c_str());
-                ImGui::TextWrapped("%s",
-                                   ("    " + message.getMessage()).c_str());
-            }
+                // TODO: Revise as newMessage is updated in the future; probably
+                // need to move setting newMessage to elsewhere in the code
+                if (history->hasNewMessage() || justSent) {
+                    ImGui::SetScrollHereY(1.0f);
+                }
 
-            // TODO: Revise as newMessage is updated in the future; probably
-            // need to move setting newMessage to elsewhere in the code
-            if (history->hasNewMessage() || justSent) {
-                ImGui::SetScrollHereY(1.0f);
-            }
+                ImGui::EndChild();
+                ImGui::PopStyleVar();
 
-            ImGui::EndChild();
-            ImGui::PopStyleVar();
+                // Text input area flags
+                ImGuiInputTextFlags input_flags =
+                    ImGuiInputTextFlags_EnterReturnsTrue |
+                    ImGuiInputTextFlags_CtrlEnterForNewLine;
 
-            // Text input area flags
-            ImGuiInputTextFlags input_flags =
-                ImGuiInputTextFlags_EnterReturnsTrue |
-                ImGuiInputTextFlags_CtrlEnterForNewLine;
+                // Refocus text area if text was just sent
+                if (justSent) {
+                    ImGui::SetKeyboardFocusHere();
+                    justSent = false;
+                }
 
-            // Refocus text area if text was just sent
-            if (justSent) {
-                ImGui::SetKeyboardFocusHere();
-                justSent = false;
-            }
+                // Create text area and send button
+                if (ImGui::InputTextMultiline(
+                        "##source", text, IM_ARRAYSIZE(text),
+                        ImVec2(-FLT_MIN, TEXTBOX_HEIGHT), input_flags) ||
+                    ImGui::Button("Send")) {
+                    justSent = handleSend(text, history);
+                };
 
-            // Create text area and send button
-            if (ImGui::InputTextMultiline("##source", text, IM_ARRAYSIZE(text),
-                                          ImVec2(-FLT_MIN, TEXTBOX_HEIGHT),
-                                          input_flags) ||
-                ImGui::Button("Send")) {
-                justSent = handleSend(text, history);
-            };
+                // Exit button
+                ImGui::SameLine(ImGui::GetWindowWidth() - 44);
 
-            // Exit button
-            ImGui::SameLine(ImGui::GetWindowWidth() - 44);
+                if (ImGui::Button("Exit")) {
+                    break;
+                }
 
-            if (ImGui::Button("Exit")) {
+                ImGui::End();
                 break;
-            }
-
-            ImGui::End();
         }
 
         // Rendering
@@ -374,24 +381,21 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
  * to attempt a setup
  */
 void connectHelper(std::shared_ptr<ChatHistory> history) {
-    while (!IS_CONNECTED) {
-        if (TRY_CONNECT) {
-            std::cout << "Using port " << PORT << std::endl;
+    ATTEMPT_CONNECT.acquire();
+    std::cout << "Using port " << PORT << std::endl;
 
-            // Start session
-            if (IS_SERVER) {
-                // Create server object
-                myServer = std::make_unique<Server>(PORT, history);
-            } else {
-                // Create client object
-                myClient = std::make_unique<Client>(IP_ADDRESS, PORT, history);
-            }
-
-            IS_CONNECTED = true;
-            std::cout << "Stopping connectHelper() thread" << std::endl;
-            return;
-        }
+    // Start session
+    if (IS_SERVER) {
+        // Create server object
+        myServer = std::make_unique<Server>(PORT, history);
+    } else {
+        // Create client object
+        myClient = std::make_unique<Client>(IP_ADDRESS, PORT, history);
     }
+
+    CURR_SCREEN = chat;
+    std::cout << "Stopping connectHelper() thread" << std::endl;
+    return;
 };
 
 int main() {
