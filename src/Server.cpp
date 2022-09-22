@@ -106,8 +106,9 @@ void Server::receiveMessage() {
 
         recv(newSd, (char *)&msg, sizeof(msg), 0);
 
-        // Push incoming message to ChatHistory
-        this->history->addMessage(msg, "Client");
+        if (msg[0] != '\0')
+            // Push incoming message to ChatHistory
+            this->history->addMessage(msg, "Client");
     }
 }
 

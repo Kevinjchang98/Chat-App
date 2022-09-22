@@ -76,7 +76,7 @@ bool handleSend(char* text, std::shared_ptr<ChatHistory> history) {
 
     // TODO: Probably want to only add to chat history once the message has been
     // sent. Also don't hardcode "Me" as the sender
-    history->addMessage(text, "Me");
+    if (text[0] != '\0') history->addMessage(text, "Me");
 
     // Clear text input area
     strncpy(text, "", TEXT_MESSAGE_SIZE);
