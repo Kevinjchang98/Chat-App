@@ -106,13 +106,6 @@ void Server::receiveMessage() {
 
         recv(newSd, (char *)&msg, sizeof(msg), 0);
 
-        // if (!strcmp(msg, "exit")) {
-        //     std::cout << "Server has quit the session" << std::endl;
-        //     break;
-        // }
-
-        std::cout << t << "Client: " << msg << std::endl;
-
         // Push incoming message to chatHistory
         this->history->addMessage(msg, "Client");
     }

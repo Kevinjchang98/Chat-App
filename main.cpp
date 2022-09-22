@@ -67,17 +67,12 @@ static void glfw_error_callback(int error, const char* description) {
 
 /**
  * @brief Function to handle sending the chat message
- * TODO: Currently just cout's the message
  *
  * @param text Char array of text to be sent
  * @param history The chatlog as a shared_ptr<chatHistory>
  * @return true if successfully sent
  */
 bool handleSend(char* text, std::shared_ptr<chatHistory> history) {
-    // TODO: Replace with desired behavior
-    std::cout << "Send button pressed with text contents: " << text
-              << std::endl;
-
     if (IS_SERVER) {
         myServer->sendMessage(text);
     } else {
@@ -178,12 +173,11 @@ void runImgui(std::shared_ptr<chatHistory> history) {
     // Our state
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     bool justSent = true;
-    bool newMessage = true;
     bool isServer = false;
 
     // Init variables for IP address and port number
-    char ipAddress[64] = "";
-    char port[8] = "";
+    char ipAddress[64] = "127.0.0.1";
+    char port[8] = "3000";
 
     // Initial text
     char text[TEXT_MESSAGE_SIZE] = "";
@@ -290,8 +284,6 @@ void runImgui(std::shared_ptr<chatHistory> history) {
             // TODO: Format chat history
             ImGui::Dummy(ImVec2(0, ImGui::GetContentRegionAvail().y));
 
-            // TODO: Only updates when we send a message, not when one's 
-            // received
             for (chatMessage message : history->getChatHistory()) {
                 ImGui::Spacing();
                 ImGui::TextWrapped("%s", message.getSender().c_str());
@@ -301,9 +293,8 @@ void runImgui(std::shared_ptr<chatHistory> history) {
 
             // TODO: Revise as newMessage is updated in the future; probably
             // need to move setting newMessage to elsewhere in the code
-            if (newMessage || justSent) {
+            if (history->hasNewMessage() || justSent) {
                 ImGui::SetScrollHereY(1.0f);
-                newMessage = false;
             }
 
             ImGui::EndChild();
@@ -389,7 +380,6 @@ void connectHelper(std::shared_ptr<chatHistory> history) {
                 myServer = std::make_unique<Server>(PORT, history);
             } else {
                 // Create client object
-                // TODO: Remove use of char* in client class
                 myClient = std::make_unique<Client>(IP_ADDRESS, PORT, history);
             }
 
@@ -402,15 +392,14 @@ void connectHelper(std::shared_ptr<chatHistory> history) {
 
 int main() {
     // Initialize chat history
-    std::shared_ptr<chatHistory> history = std::make_shared<chatHistory>();;
+    std::shared_ptr<chatHistory> history = std::make_shared<chatHistory>();
 
     // Start server-client session
     std::thread connectThread(connectHelper, history);
     connectThread.detach();
 
+    // Main GUI loop
     runImgui(history);
-
-    // closeConnections();
 
     return 0;
 }

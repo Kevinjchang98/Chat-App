@@ -15,9 +15,11 @@ class chatHistory {
 
     void addMessage(std::string, std::string);
     std::vector<chatMessage> getChatHistory();
+    bool hasNewMessage();
 
    private:
     std::vector<chatMessage> histVec;
+    int oldSize;
 };
 
 #endif
