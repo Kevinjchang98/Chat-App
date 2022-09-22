@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "chatMessage.h"
+#include "ChatMessage.h"
 
 class ChatHistory {
    public:
