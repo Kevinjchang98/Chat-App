@@ -1,14 +1,14 @@
 #include "ChatMessage.h"
 
+#include <ctime>
+
 ChatMessage::ChatMessage() {
     message = "";
     sender = "Unknown";
-    // timestamp = time(NULL);
 }
 
 ChatMessage::ChatMessage(std::string inMessage, std::string inSender) {
     setMessage(inMessage, inSender);
-    // timestamp = time(NULL);
 }
 
 ChatMessage::~ChatMessage() {}
@@ -22,10 +22,21 @@ void ChatMessage::setMessage(std::string inMessage, std::string inSender) {
 
 void ChatMessage::setSender(std::string input) { sender = input; }
 
-// void ChatMessage::setTime() { timestamp = time(NULL); }
+void ChatMessage::setTime() {
+    std::time_t timestamp = time(NULL);
+    current_time = ctime(&timestamp);
+}
 
 std::string ChatMessage::getMessage() { return message; }
 
 std::string ChatMessage::getSender() { return sender; }
 
-// std::time_t ChatMessage::getTimestamp() { return timestamp; }
+std::string ChatMessage::getTimestamp() {
+    std::string timestamp = current_time; 
+    return time_now; 
+}
+
+// std::string ChatMessage::convertToString(char *curr_time) {
+//     std::string time_now = curr_time;
+//     return time_now;
+// }
