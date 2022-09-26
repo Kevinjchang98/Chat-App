@@ -11,7 +11,7 @@
 #   pacman -S --noconfirm --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-glfw
 #
 
-#CXX = g++
+#CXX = gcc++
 #CXX = clang++
 
 EXE_BASE = chat_app
@@ -24,7 +24,7 @@ OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS = -lGL
 
-CXXFLAGS = -std=c++17 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I./include -pthread
+CXXFLAGS = -std=c++2a -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I./include -pthread
 CXXFLAGS += -g -Wall -Wformat
 LIBS =
 
@@ -41,6 +41,7 @@ LIBS =
 ##---------------------------------------------------------------------
 
 ifeq ($(UNAME_S), Linux) #LINUX
+	CXX = g++-11
 	ECHO_MESSAGE = "Linux"
 	LIBS += $(LINUX_GL_LIBS) `pkg-config --static --libs glfw3`
 
