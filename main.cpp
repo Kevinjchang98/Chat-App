@@ -9,6 +9,7 @@
 
 #include <iostream>  // TODO: Remove later when not needed
 
+#include <semaphore>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -48,11 +49,11 @@ constexpr int TEXT_MESSAGE_SIZE = 1024 * 8;
 constexpr int INIT_WINDOW_WIDTH = 400;
 constexpr int INIT_WINDOW_HEIGHT = 720;
 
-// enum screen { login, connecting, chat };
-// screen CURR_SCREEN = login;
+enum screen { login, connecting, chat };
+screen CURR_SCREEN = login;
 int PORT = -1;
 std::string IP_ADDRESS = "";
-// std::counting_semaphore<1> ATTEMPT_CONNECT(0);
+std::counting_semaphore<1> ATTEMPT_CONNECT(0);
 bool IS_SERVER = false;
 
 static void glfw_error_callback(int error, const char* description) {
@@ -211,8 +212,8 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
          * @brief Shows connection window if not connected, otherwise show
          * basic chat window
          */
-        // switch (CURR_SCREEN) {
-        //     case login:
+        switch (CURR_SCREEN) {
+            case login:
                 // Initial connection screen
                 // Make window take up full system window
                 ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -239,8 +240,8 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
                     IP_ADDRESS = ipAddress;
                     PORT = std::atoi(port);
                     IS_SERVER = isServer;
-                    // ATTEMPT_CONNECT.release();
-                    // CURR_SCREEN = connecting;
+                    ATTEMPT_CONNECT.release();
+                    CURR_SCREEN = connecting;
                 };
 
                 // Exit button TODO: interrupt and exit properly
@@ -250,7 +251,7 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
 
                 ImGui::End();
                 break;
-            // case connecting:
+            case connecting:
                 // Is connecting
                 ImGui::SetNextWindowPos(ImVec2(0, 0));
                 ImGui::SetNextWindowSize(io.DisplaySize);
@@ -266,7 +267,7 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
 
                 ImGui::End();
                 break;
-            // case chat:
+            case chat:
                 // Is connected
                 int TEXTBOX_HEIGHT = ImGui::GetTextLineHeight() * 4;
 
@@ -353,15 +354,15 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
         glfwSwapBuffers(window);
     }
 
-    // std::cout << "Main ImGUI loop ended" << std::endl;
+    std::cout << "Main ImGUI loop ended" << std::endl;
 
-    // ImGui_ImplOpenGL3_Shutdown();
-    // ImGui_ImplGlfw_Shutdown();
-    // ImGui::DestroyContext();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
-//     glfwDestroyWindow(window);
-//     glfwTerminate();
-// }
+    glfwDestroyWindow(window);
+    glfwTerminate();
+}
 
 // /**
 //  * @brief Closes client and server connections
@@ -378,7 +379,7 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
  * option chosen in gui. Waits until ATTEMPT_CONNECT semaphore lets us connect
  */
 void connectHelper(std::shared_ptr<ChatHistory> history) {
-    // ATTEMPT_CONNECT.acquire();
+    ATTEMPT_CONNECT.acquire();
     std::cout << "Using port " << PORT << std::endl;
 
     // Start session
@@ -390,7 +391,7 @@ void connectHelper(std::shared_ptr<ChatHistory> history) {
         myClient = std::make_unique<Client>(IP_ADDRESS, PORT, history);
     }
 
-    // CURR_SCREEN = chat;
+    CURR_SCREEN = chat;
     std::cout << "Stopping connectHelper() thread" << std::endl;
     return;
 };
