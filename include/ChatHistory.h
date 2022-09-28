@@ -19,7 +19,7 @@ class ChatHistory {
 
    private:
     std::vector<ChatMessage> histVec;
-    int oldSize;
+    std::vector<ChatMessage>::size_type oldSize;
 };
 
 #endif

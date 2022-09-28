@@ -2,6 +2,7 @@
 #include <netinet/in.h>
 
 #include <thread>
+#include <memory>
 
 #ifndef SERVER_H
 #define SERVER_H

@@ -6,6 +6,7 @@ ChatHistory::~ChatHistory() {}
 
 void ChatHistory::addMessage(std::string message, std::string sender) {
     ChatMessage newMessage;
+    newMessage.setTime(); 
     newMessage.setMessage(message, sender);
     histVec.push_back(newMessage);
 }

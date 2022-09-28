@@ -98,16 +98,17 @@ void Server::sendMessage(const std::string data) {
 void Server::receiveMessage() {
     char msg[MAX_CHAR];
 
-    std::time_t time_now = std::time(nullptr);
-    char *t = ctime(&time_now);
+    // std::time_t time_now = std::time(nullptr);
+    // char *t = ctime(&time_now);
 
     while (!stopListening) {
         memset(&msg, 0, sizeof(msg));  // clear the buffer
 
         recv(newSd, (char *)&msg, sizeof(msg), 0);
 
-        // Push incoming message to ChatHistory
-        this->history->addMessage(msg, "Client");
+        if (msg[0] != '\0')
+            // Push incoming message to ChatHistory
+            this->history->addMessage(msg, "Client");
     }
 }
 

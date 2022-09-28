@@ -2,6 +2,7 @@
 #include <netinet/in.h>
 
 #include <thread>
+#include <memory>
 
 #ifndef CLIENT_H
 #define CLIENT_H
