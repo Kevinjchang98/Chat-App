@@ -16,11 +16,11 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         include:
           - os: ubuntu-latest
-            compiler: g++-10
+            compiler: g++-11
             target: Linux
 
           - os: macos-latest
-            compiler: g++-10
+            compiler: g++-11
             target: Macos
 
     steps:
