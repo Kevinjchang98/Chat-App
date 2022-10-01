@@ -6,6 +6,14 @@ A simple multithreaded C++ application that uses TCP/IP socket programming and [
 
 While still in development, thus far users can choose to act as a server or client, and two users are able to send simple text messages to each other. A chatlog is displayed with timestamps for each message.
 
+## Future plans
+
+We currently plan on adding:
+
+-   Encryption for messages
+-   Expanding functionality for multi-client chats beyond 2 users
+-   Easier process to connect to servers
+
 ## Building the app
 
 ### Prerequisites
