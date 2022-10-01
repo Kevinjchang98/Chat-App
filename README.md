@@ -2,7 +2,7 @@
 
 ## What is it?
 
-A simple multithreaded C++ application that uses TCP/IP socket proramming and [Dear ImGui](https://github.com/ocornut/imgui) to send messages.
+A simple multithreaded C++ application that uses TCP/IP socket programming and [Dear ImGui](https://github.com/ocornut/imgui) to send messages.
 
 While still in development, thus far users can choose to act as a server or client, and two users are able to send simple text messages to each other. A chatlog is displayed with timestamps for each message.
 
