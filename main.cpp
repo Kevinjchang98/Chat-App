@@ -8,8 +8,8 @@
 #include <stdio.h>
 
 #include <iostream>  // TODO: Remove later when not needed
-
 #include <semaphore>
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -184,6 +184,7 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
     // Init variables for IP address and port number
     char ipAddress[64] = "127.0.0.1";
     char port[8] = "3000";
+    char username[128] = "";
 
     // Initial text
     char text[TEXT_MESSAGE_SIZE] = "";
@@ -232,6 +233,10 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
                 // Input box for Port number
                 ImGui::InputText("Port", port, 64,
                                  ImGuiInputTextFlags_CharsDecimal);
+
+                // Input box for username
+                ImGui::InputText("Display name", username, 128,
+                                 ImGuiInputTextFlags_None);
 
                 // Button to connect
                 if (ImGui::Button("Connect") && connectionDataIsValid()) {
