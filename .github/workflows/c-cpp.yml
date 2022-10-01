@@ -13,25 +13,17 @@ jobs:
     
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             compiler: g++-11
             target: Linux
-
-          - os: macos-latest
-            compiler: g++-11
-            target: Macos
 
     steps:
     - uses: actions/checkout@v3
     - name: glfw-ubuntu
       if: ${{ matrix.os == 'ubuntu-latest' }}
       run: sudo apt-get install libglfw3-dev g++-11
-      
-    - name: glfw-mac
-      if: ${{ matrix.os == 'macos-latest' }}
-      run: brew install glfw
       
     - name: make
       run: make
