@@ -223,7 +223,7 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
                 ImGui::SetNextWindowSize(io.DisplaySize);
 
                 // Create a window
-                ImGui::Begin("Connect");
+                ImGui::Begin("Connect", NULL, ImGuiWindowFlags_NoCollapse);
 
                 // Create a checkbox for whether to run server or client setup
                 ImGui::Checkbox("Server", &isServer);
@@ -263,7 +263,7 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
                 ImGui::SetNextWindowPos(ImVec2(0, 0));
                 ImGui::SetNextWindowSize(io.DisplaySize);
 
-                ImGui::Begin("Connecting");
+                ImGui::Begin("Connecting", NULL, ImGuiWindowFlags_NoCollapse);
 
                 ImGui::Text("Setting up connection");
 
@@ -285,7 +285,7 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
                 // Create window
                 // TODO: Probably rename this to currently connected IP or
                 // something
-                ImGui::Begin("Chat box");
+                ImGui::Begin("Chat box", NULL, ImGuiWindowFlags_NoCollapse);
 
                 // Child window scrollable area
                 ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
