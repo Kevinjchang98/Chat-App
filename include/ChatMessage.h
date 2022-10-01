@@ -4,6 +4,7 @@
 #pragma once
 
 #include <string>
+#include <ctime>
 
 class ChatMessage {
    public:
@@ -23,9 +24,7 @@ class ChatMessage {
    private:
     std::string message;
     std::string sender;
-    std::string time_now;
-
-    char *current_time; 
+    std::string timestamp;
 };
 
 #endif
