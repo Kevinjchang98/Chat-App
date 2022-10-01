@@ -1,5 +1,6 @@
 #include <ChatHistory.h>
-#include <netinet/in.h>
+#include <winsock2.h>
+// #include <netinet/in.h>
 
 #include <thread>
 #include <memory>

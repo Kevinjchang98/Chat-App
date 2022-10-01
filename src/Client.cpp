@@ -1,4 +1,6 @@
-#include <arpa/inet.h>
+// #include <arpa/inet.h>
+#include <winsock2.h>
+#include <WS2tcpip.h>
 // #include <errno.h>
 // #include <netinet/in.h>
 // #include <stdio.h>

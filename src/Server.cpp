@@ -1,4 +1,6 @@
-#include <arpa/inet.h>
+// #include <arpa/inet.h>
+#include <winsock2.h>
+#include <WS2tcpip.h>
 // #include <errno.h>
 // #include <netinet/in.h>
 // #include <stdio.h>
@@ -35,7 +37,7 @@ Server::Server(const int port_no, std::shared_ptr<ChatHistory> history) {
     // also keep track of the socket descriptor
     serverSd = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSd < 0) {
-        std::cerr << "Error establishing the server socket" << std::endl;
+        std::cerr << "Error establishing the server socket" << AF_INET << SOCK_STREAM << std::endl;
         exit(0);
     }
 
