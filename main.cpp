@@ -184,6 +184,8 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
     // Init variables for IP address and port number
     char ipAddress[64] = "127.0.0.1";
     char port[8] = "3000";
+
+    // Init variable for display name
     char username[128] = "";
 
     // Initial text
@@ -231,7 +233,7 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
                                  ImGuiInputTextFlags_CharsDecimal);
 
                 // Input box for Port number
-                ImGui::InputText("Port", port, 64,
+                ImGui::InputText("Port", port, 8,
                                  ImGuiInputTextFlags_CharsDecimal);
 
                 // Input box for username
