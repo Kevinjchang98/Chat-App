@@ -1,7 +1,10 @@
 #include <stdio.h>
 
 #include <iostream>  // TODO: Remove later when not needed
+#include <memory>
 #include <semaphore>
+
+#include "NetworkHelper.h"
 
 // TODO: Check placement of win32 define statements
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to
@@ -77,11 +80,8 @@ static void glfw_error_callback(int error, const char* description) {
  * @return true if successfully sent
  */
 bool Gui::handleSend(char* text, std::shared_ptr<ChatHistory> history) {
-    if (IS_SERVER) {
-        myServer->sendMessage(text);
-    } else {
-        myClient->sendMessage(text);
-    }
+    // Send message
+    connection->sendMessage(text);
 
     // TODO: Probably want to only add to chat history once the message has been
     // sent. Also don't hardcode "Me" as the sender
@@ -410,20 +410,12 @@ void Gui::connectHelper(std::shared_ptr<ChatHistory> history) {
     ATTEMPT_CONNECT.acquire();
     std::cout << "Using port " << PORT << std::endl;
 
-    // Start session
-    if (IS_SERVER) {
-        // Create server object
-        myServer = std::make_unique<Server>(PORT, history);
+    // Set up connection
+    connection =
+        std::make_unique<NetworkHelper>(IS_SERVER, IP_ADDRESS, PORT, history);
 
-        // Exchange usernames
-        myServer->exchangeUsernames(myName);
-    } else {
-        // Create client object
-        myClient = std::make_unique<Client>(IP_ADDRESS, PORT, history);
-
-        // Exchange usernames
-        myClient->exchangeUsernames(myName);
-    }
+    // Set usernames
+    connection->exchangeUsernames(myName);
 
     // Change screen to chat screen
     CURR_SCREEN = chat;
