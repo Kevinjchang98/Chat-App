@@ -1,6 +1,7 @@
 #ifndef GUI_H
 #define GUI_H
 
+#include "NetworkHelper.h"
 #pragma once
 
 #include <ChatHistory.h>
@@ -26,6 +27,9 @@ class Gui {
     // Server and Client
     std::unique_ptr<Server> myServer;
     std::unique_ptr<Client> myClient;
+
+    // Network Helper
+    std::unique_ptr<NetworkHelper> connection;
 
     // ImGui state
     screen CURR_SCREEN = login;
