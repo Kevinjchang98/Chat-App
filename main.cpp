@@ -306,8 +306,12 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
 
                 for (ChatMessage message : history->getChatHistory()) {
                     ImGui::Spacing();
-                    ImGui::TextWrapped("%s", message.getTimestamp().c_str());
                     ImGui::TextWrapped("%s", message.getSender().c_str());
+                    ImGui::SameLine();
+                    ImGui::SetCursorPosX((ImGui::GetWindowWidth() -
+                                          message.getTimestamp().size()) /
+                                         2.f);
+                    ImGui::TextWrapped("%s", message.getTimestamp().c_str());
                     ImGui::TextWrapped("%s",
                                        ("    " + message.getMessage()).c_str());
                 }
