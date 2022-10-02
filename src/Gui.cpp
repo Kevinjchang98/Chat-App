@@ -276,7 +276,9 @@ void Gui::runImgui(std::shared_ptr<ChatHistory> history) {
                 ImGui::SetNextWindowPos(ImVec2(0, 0));
                 ImGui::SetNextWindowSize(io.DisplaySize);
 
-                ImGui::Begin("Connecting", NULL, ImGuiWindowFlags_NoCollapse);
+                ImGui::Begin(
+                    "Connecting", NULL,
+                    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
                 ImGui::Text("Setting up connection");
 
@@ -298,7 +300,9 @@ void Gui::runImgui(std::shared_ptr<ChatHistory> history) {
                 // Create window
                 // TODO: Probably rename this to currently connected IP or
                 // something
-                ImGui::Begin("Chat box", NULL, ImGuiWindowFlags_NoCollapse);
+                ImGui::Begin(
+                    "Chat box", NULL,
+                    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
                 // Child window scrollable area
                 ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
