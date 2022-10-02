@@ -55,6 +55,7 @@ int PORT = -1;
 std::string IP_ADDRESS = "";
 std::counting_semaphore<1> ATTEMPT_CONNECT(0);
 bool IS_SERVER = false;
+std::string myName = "";
 
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -223,7 +224,9 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
                 ImGui::SetNextWindowSize(io.DisplaySize);
 
                 // Create a window
-                ImGui::Begin("Connect", NULL, ImGuiWindowFlags_NoCollapse);
+                ImGui::Begin(
+                    "Connect", NULL,
+                    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
                 // Create a checkbox for whether to run server or client setup
                 ImGui::Checkbox("Server", &isServer);
@@ -249,6 +252,7 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
                     IS_SERVER = isServer;
                     ATTEMPT_CONNECT.release();
                     CURR_SCREEN = connecting;
+                    myName = username;
                 };
 
                 // Exit button TODO: interrupt and exit properly
@@ -393,11 +397,18 @@ void connectHelper(std::shared_ptr<ChatHistory> history) {
     if (IS_SERVER) {
         // Create server object
         myServer = std::make_unique<Server>(PORT, history);
+
+        // Exchange usernames
+        myServer->exchangeUsernames(myName);
     } else {
         // Create client object
         myClient = std::make_unique<Client>(IP_ADDRESS, PORT, history);
+
+        // Exchange usernames
+        myClient->exchangeUsernames(myName);
     }
 
+    // Change screen to chat screen
     CURR_SCREEN = chat;
     std::cout << "Stopping connectHelper() thread" << std::endl;
     return;

@@ -1,8 +1,8 @@
 #include <ChatHistory.h>
 #include <netinet/in.h>
 
-#include <thread>
 #include <memory>
+#include <thread>
 
 #ifndef CLIENT_H
 #define CLIENT_H
@@ -14,6 +14,7 @@ class Client {
     Client(const std::string ip_address, const int port,
            std::shared_ptr<ChatHistory>);
     ~Client();
+    void exchangeUsernames(const std::string myName);
     void sendMessage(const std::string message);
     void receiveMessage();
     void stop();
@@ -25,6 +26,8 @@ class Client {
     int clientSd;
     const int MAX_CHAR = 1500;
     std::shared_ptr<ChatHistory> history;
+    std::string username;
+    std::string serverName;
 };
 
 #endif /* CLIENT_H */

@@ -1,8 +1,8 @@
 #include <ChatHistory.h>
 #include <netinet/in.h>
 
-#include <thread>
 #include <memory>
+#include <thread>
 
 #ifndef SERVER_H
 #define SERVER_H
@@ -15,6 +15,7 @@ class Server {
     ~Server();
     void sendMessage(const std::string data);
     void receiveMessage();
+    void exchangeUsernames(const std::string myName);
     void stop();
 
    private:
@@ -26,6 +27,8 @@ class Server {
     // socklen_t newSockAddrSize;
     const int MAX_CHAR = 1500;
     std::shared_ptr<ChatHistory> history;
+    std::string username;
+    std::string clientName;
 };
 
 #endif /* SERVER_H */

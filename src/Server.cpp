@@ -108,8 +108,38 @@ void Server::receiveMessage() {
 
         if (msg[0] != '\0')
             // Push incoming message to ChatHistory
-            this->history->addMessage(msg, "Client");
+            this->history->addMessage(msg, clientName);
     }
+}
+
+/**
+ * @brief Sends server's username to the client and expects a response back for
+ * the client's name. If myName is empty, default username of "Server" will be
+ * used. Will update this->username and this->clientName.
+ *
+ * @param myName If not an empty string will be sent directly to server
+ */
+void Server::exchangeUsernames(const std::string myName) {
+    // Set to "Client" if no username from user
+    this->username = myName.size() == 0 ? "Client" : myName;
+
+    // Convert client name to char array
+    char serverName[username.size()];
+    strcpy(serverName, username.c_str());
+
+    // Send username to server
+    send(newSd, serverName, username.size(), 0);
+
+    // Receive server name from server
+    char clientName[128];
+    memset(clientName, 0, sizeof(clientName));
+
+    recv(newSd, clientName, sizeof(clientName), 0);
+
+    this->clientName = clientName;
+
+    std::cout << "Server name: " << this->username
+              << "\nClient name: " << this->clientName << std::endl;
 }
 
 /**
