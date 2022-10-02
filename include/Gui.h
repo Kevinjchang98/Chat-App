@@ -24,10 +24,6 @@ class Gui {
     // ImGui window states
     enum screen { login, connecting, chat };
 
-    // Server and Client
-    std::unique_ptr<Server> myServer;
-    std::unique_ptr<Client> myClient;
-
     // Network Helper
     std::unique_ptr<NetworkHelper> connection;
 
