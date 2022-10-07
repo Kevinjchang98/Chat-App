@@ -1,15 +1,24 @@
-// Dear ImGui: standalone example application for GLFW + OpenGL 3, using
-// programmable pipeline (GLFW is a cross-platform general purpose library for
-// handling windows, inputs, OpenGL/Vulkan/Metal graphics context creation,
-// etc.) If you are new to Dear ImGui, read documentation from the docs/ folder
-// + read the top of imgui.cpp. Read online:
-// https://github.com/ocornut/imgui/tree/master/docs
-
 #include <stdio.h>
 
 #include <iostream>  // TODO: Remove later when not needed
+#include <memory>
 #include <semaphore>
 
+#include "NetworkHelper.h"
+
+// TODO: Check placement of win32 define statements
+// [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to
+// maximize ease of testing and compatibility with old VS compilers. To link
+// with VS2010-era libraries, VS2015+ requires linking with
+// legacy_stdio_definitions.lib, which we do using this pragma. Your own project
+// should not be affected, as you are likely to link with a newer binary of GLFW
+// that is adequate for your version of Visual Studio.
+#if defined(_MSC_VER) && (_MSC_VER >= 1900) && \
+    !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
+#pragma comment(lib, "legacy_stdio_definitions")
+#endif
+
+#include "Gui.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -26,36 +35,38 @@
 #include "Client.h"
 #include "Server.h"
 
-// Global pointers to the Client and Server objects
-std::unique_ptr<Server> myServer;
-std::unique_ptr<Client> myClient;
+/**
+ * @brief Construct a new Gui:: Gui object
+ *
+ */
+Gui::Gui() {
+    // Initialize member state variables
+    CURR_SCREEN = login;
+    PORT = -1;
+    IP_ADDRESS = "";
+    IS_SERVER = false;
+    myName = "";
 
-// [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to
-// maximize ease of testing and compatibility with old VS compilers. To link
-// with VS2010-era libraries, VS2015+ requires linking with
-// legacy_stdio_definitions.lib, which we do using this pragma. Your own project
-// should not be affected, as you are likely to link with a newer binary of GLFW
-// that is adequate for your version of Visual Studio.
-#if defined(_MSC_VER) && (_MSC_VER >= 1900) && \
-    !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
-#pragma comment(lib, "legacy_stdio_definitions")
-#endif
+    // Initialize chat history
+    std::shared_ptr<ChatHistory> history = std::make_shared<ChatHistory>();
 
-// Global variables
-// synchronize
-// everytime user sends message, IMGUI sets global variable to message
-// signal client server ... lock/unlock mutex
-constexpr int TEXT_MESSAGE_SIZE = 1024 * 8;
-constexpr int INIT_WINDOW_WIDTH = 400;
-constexpr int INIT_WINDOW_HEIGHT = 720;
+    // Start server-client session
+    std::thread connectThread(
+        [this](std::shared_ptr<ChatHistory> history) {
+            this->connectHelper(history);
+        },
+        history);
+    connectThread.detach();
 
-enum screen { login, connecting, chat };
-screen CURR_SCREEN = login;
-int PORT = -1;
-std::string IP_ADDRESS = "";
-std::counting_semaphore<1> ATTEMPT_CONNECT(0);
-bool IS_SERVER = false;
-std::string myName = "";
+    // Main GUI loop
+    runImgui(history);
+}
+
+/**
+ * @brief Destroy the Gui:: Gui object
+ *
+ */
+Gui::~Gui() {}
 
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -68,12 +79,9 @@ static void glfw_error_callback(int error, const char* description) {
  * @param history The chatlog as a shared_ptr<ChatHistory>
  * @return true if successfully sent
  */
-bool handleSend(char* text, std::shared_ptr<ChatHistory> history) {
-    if (IS_SERVER) {
-        myServer->sendMessage(text);
-    } else {
-        myClient->sendMessage(text);
-    }
+bool Gui::handleSend(char* text, std::shared_ptr<ChatHistory> history) {
+    // Send message
+    connection->sendMessage(text);
 
     // TODO: Probably want to only add to chat history once the message has been
     // sent. Also don't hardcode "Me" as the sender
@@ -92,7 +100,7 @@ bool handleSend(char* text, std::shared_ptr<ChatHistory> history) {
  * @return true If both are valid
  * @return false If at least one is invalid
  */
-bool connectionDataIsValid() {
+bool Gui::connectionDataIsValid() {
     // TODO: Check IP_ADDRESS and PORT are valid in format
     return true;
 }
@@ -100,9 +108,10 @@ bool connectionDataIsValid() {
 /**
  * @brief Main ImGUI loop
  */
-void runImgui(std::shared_ptr<ChatHistory> history) {
+void Gui::runImgui(std::shared_ptr<ChatHistory> history) {
     // Setup window
-    glfwSetErrorCallback(glfw_error_callback);
+    // TODO: Fix error callback
+    // glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit()) return;
 
 // Decide GL+GLSL versions
@@ -267,7 +276,9 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
                 ImGui::SetNextWindowPos(ImVec2(0, 0));
                 ImGui::SetNextWindowSize(io.DisplaySize);
 
-                ImGui::Begin("Connecting", NULL, ImGuiWindowFlags_NoCollapse);
+                ImGui::Begin(
+                    "Connecting", NULL,
+                    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
                 ImGui::Text("Setting up connection");
 
@@ -289,7 +300,9 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
                 // Create window
                 // TODO: Probably rename this to currently connected IP or
                 // something
-                ImGui::Begin("Chat box", NULL, ImGuiWindowFlags_NoCollapse);
+                ImGui::Begin(
+                    "Chat box", NULL,
+                    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
                 // Child window scrollable area
                 ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
@@ -393,41 +406,19 @@ void runImgui(std::shared_ptr<ChatHistory> history) {
 /**
  * option chosen in gui. Waits until ATTEMPT_CONNECT semaphore lets us connect
  */
-void connectHelper(std::shared_ptr<ChatHistory> history) {
+void Gui::connectHelper(std::shared_ptr<ChatHistory> history) {
     ATTEMPT_CONNECT.acquire();
     std::cout << "Using port " << PORT << std::endl;
 
-    // Start session
-    if (IS_SERVER) {
-        // Create server object
-        myServer = std::make_unique<Server>(PORT, history);
+    // Set up connection
+    connection =
+        std::make_unique<NetworkHelper>(IS_SERVER, IP_ADDRESS, PORT, history);
 
-        // Exchange usernames
-        myServer->exchangeUsernames(myName);
-    } else {
-        // Create client object
-        myClient = std::make_unique<Client>(IP_ADDRESS, PORT, history);
-
-        // Exchange usernames
-        myClient->exchangeUsernames(myName);
-    }
+    // Set usernames
+    connection->exchangeUsernames(myName);
 
     // Change screen to chat screen
     CURR_SCREEN = chat;
     std::cout << "Stopping connectHelper() thread" << std::endl;
     return;
 };
-
-int main() {
-    // Initialize chat history
-    std::shared_ptr<ChatHistory> history = std::make_shared<ChatHistory>();
-
-    // Start server-client session
-    std::thread connectThread(connectHelper, history);
-    connectThread.detach();
-
-    // Main GUI loop
-    runImgui(history);
-
-    return 0;
-}

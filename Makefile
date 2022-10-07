@@ -16,10 +16,10 @@
 
 EXE_BASE = chat_app
 IMGUI_DIR = ./imgui
-SOURCES = main.cpp
+SOURCES = src/main.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
-SOURCES += src/Server.cpp src/Client.cpp src/ChatMessage.cpp src/ChatHistory.cpp
+SOURCES += src/Server.cpp src/Client.cpp src/ChatMessage.cpp src/ChatHistory.cpp src/Gui.cpp src/NetworkHelper.cpp
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS = -lGL
