@@ -2,9 +2,14 @@
 
 #include <string>
 
+#include "catch.hpp"
+
+#define private public
 #include "ChatMessage.cpp"
 #include "ChatMessage.h"
-#include "catch.hpp"
+#include "Gui.cpp"
+#include "Gui.h"
+#undef private
 
 TEST_CASE("Empty message") {
     ChatMessage test = ChatMessage();
