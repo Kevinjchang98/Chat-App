@@ -106,5 +106,5 @@ clean:
 	rm -f $(EXE) $(OBJS)
 	rm -rf build
 
-tests:
-	cd tests; g++ test.cpp ../src/ChatMessage.cpp -std=c++2a -I../include/ -I../src/ -I../imgui -I../imgui/backends -o tests && ./tests
+test:
+	cd tests; c++ test.cpp ../src/ChatMessage.cpp ../src/ChatHistory.cpp -std=c++2a -I../include/ -I../src/ -I../imgui -I../imgui/backends -o tests && ./tests
