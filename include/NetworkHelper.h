@@ -17,6 +17,9 @@ class NetworkHelper {
     void exchangeUsernames(const std::string& myName);
     void sendMessage(const std::string& message);
 
+    // Check if addr and port given are valid
+    static bool connectionDataIsValid(std::string, int);
+
    private:
     bool isServer;
 

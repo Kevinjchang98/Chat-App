@@ -29,3 +29,14 @@ void NetworkHelper::sendMessage(const std::string& message) {
     else
         myClient->sendMessage(message);
 }
+
+/**
+ * @brief Checks if IP_ADDRESS and PORT global variables are valid
+ *
+ * @return true If both are valid
+ * @return false If at least one is invalid
+ */
+bool NetworkHelper::connectionDataIsValid(std::string ip, int port) {
+    // TODO: Check IP_ADDRESS and PORT are valid in format
+    return true;
+}
