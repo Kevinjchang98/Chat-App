@@ -100,7 +100,7 @@ bool Gui::handleSend(char* text, std::shared_ptr<ChatHistory> history) {
  * @return true If both are valid
  * @return false If at least one is invalid
  */
-static bool connectionDataIsValid(std::string ip, int port) {
+bool Gui::connectionDataIsValid(std::string ip, int port) {
     // TODO: Check IP_ADDRESS and PORT are valid in format
     return true;
 }
@@ -253,7 +253,8 @@ void Gui::runImgui(std::shared_ptr<ChatHistory> history) {
                                  ImGuiInputTextFlags_None);
 
                 // Button to connect
-                if (ImGui::Button("Connect") && connectionDataIsValid()) {
+                if (ImGui::Button("Connect") &&
+                    Gui::connectionDataIsValid(this->IP_ADDRESS, this->PORT)) {
                     std::cout << "Attempting to connect" << std::endl;
 
                     IP_ADDRESS = ipAddress;
