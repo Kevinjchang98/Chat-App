@@ -2,7 +2,6 @@
 #include <string>
 
 #include "NetworkHelper.h"
-#include "Server.h"
 
 NetworkHelper::NetworkHelper(bool isServer, std::string addr, int port,
                              std::shared_ptr<ChatHistory> history) {
