@@ -37,10 +37,10 @@ class Gui {
 
     // TODO: Fix callback function
     static void glfw_error_callback(int error, const char* description);
+    // Check if addr and port given are valid
+    static bool connectionDataIsValid();
     // Send message
     bool handleSend(char* text, std::shared_ptr<ChatHistory> history);
-    // Check if addr and port given are valid
-    bool connectionDataIsValid();
     // Run main GUI loop
     void runImgui(std::shared_ptr<ChatHistory> history);
     // Init server/client based on user choice
