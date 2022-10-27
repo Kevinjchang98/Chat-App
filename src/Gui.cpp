@@ -100,7 +100,7 @@ bool Gui::handleSend(char* text, std::shared_ptr<ChatHistory> history) {
  * @return true If both are valid
  * @return false If at least one is invalid
  */
-bool Gui::connectionDataIsValid() {
+static bool connectionDataIsValid() {
     // TODO: Check IP_ADDRESS and PORT are valid in format
     return true;
 }
