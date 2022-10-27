@@ -5,8 +5,9 @@
 #include "catch.hpp"
 
 #define private public
-#include "ChatMessage.h"
 #include "ChatHistory.h"
+#include "ChatMessage.h"
+#include "NetworkHelper.h"
 #undef private
 
 // ChatMessage
@@ -105,7 +106,7 @@ TEST_CASE("Add message with empty sender saves in history") {
 
 TEST_CASE("Has new message returns true then false") {
     ChatHistory test = ChatHistory();
-    
+
     test.addMessage("Test", "Test");
 
     REQUIRE(test.hasNewMessage() == true);
@@ -116,4 +117,48 @@ TEST_CASE("Has new message returns false with empty history") {
     ChatHistory test = ChatHistory();
 
     REQUIRE(test.hasNewMessage() == false);
+}
+
+// NetworkHelper
+TEST_CASE("Valid IP and port returns true") {
+    REQUIRE(NetworkHelper::connectionDataIsValid("127.0.0.1", 5000) == true);
+}
+
+TEST_CASE("Too short IP returns false") {
+    REQUIRE(NetworkHelper::connectionDataIsValid("192.0.0", 5000) == false);
+}
+
+TEST_CASE("Too long IP returns false") {
+    REQUIRE(NetworkHelper::connectionDataIsValid("192.0.0.0.0", 5000) == false);
+}
+
+TEST_CASE("Negative number in IP returns false") {
+    REQUIRE(NetworkHelper::connectionDataIsValid("-192.0.0.0", 5000) == false);
+    REQUIRE(NetworkHelper::connectionDataIsValid("192.-0.0.0", 5000) == false);
+    REQUIRE(NetworkHelper::connectionDataIsValid("192.0.-100.0", 5000) ==
+            false);
+    REQUIRE(NetworkHelper::connectionDataIsValid("192.0.0.-5", 5000) == false);
+}
+
+TEST_CASE("Too high value in IP returns false") {
+    REQUIRE(NetworkHelper::connectionDataIsValid("256.0.0.0", 5000) == false);
+    REQUIRE(NetworkHelper::connectionDataIsValid("0.256.0.0", 5000) == false);
+    REQUIRE(NetworkHelper::connectionDataIsValid("0.0.256.0", 5000) == false);
+    REQUIRE(NetworkHelper::connectionDataIsValid("0.0.0.256", 5000) == false);
+}
+
+TEST_CASE("Negative port value returns false") {
+    REQUIRE(NetworkHelper::connectionDataIsValid("127.0.0.1", -1) == false);
+}
+
+TEST_CASE("Too high port value returns false") {
+    REQUIRE(NetworkHelper::connectionDataIsValid("127.0.0.1", 65537) == false);
+}
+
+TEST_CASE("Minimum port value returns true") {
+    REQUIRE(NetworkHelper::connectionDataIsValid("127.0.0.1", 0) == true);
+}
+
+TEST_CASE("Maximum port value returns true") {
+    REQUIRE(NetworkHelper::connectionDataIsValid("127.0.0.1", 65536) == true);
 }

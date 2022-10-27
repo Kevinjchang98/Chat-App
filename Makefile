@@ -107,4 +107,4 @@ clean:
 	rm -rf build
 
 test:
-	cd tests; c++ test.cpp ../src/ChatMessage.cpp ../src/ChatHistory.cpp -std=c++2a -I../include/ -I../src/ -I../imgui -I../imgui/backends -o tests && ./tests
+	cd tests; c++ test.cpp ../src/ChatMessage.cpp ../src/ChatHistory.cpp ../src/NetworkHelper.cpp ../src/Client.cpp ../src/Server.cpp -std=c++2a -I../include/ -I../src/ -I../imgui -I../imgui/backends -o tests && ./tests
