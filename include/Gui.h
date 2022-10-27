@@ -38,13 +38,13 @@ class Gui {
     // TODO: Fix callback function
     static void glfw_error_callback(int error, const char* description);
     // Check if addr and port given are valid
-    static bool connectionDataIsValid();
+    static bool connectionDataIsValid(std::string, int);
     // Send message
-    bool handleSend(char* text, std::shared_ptr<ChatHistory> history);
+    bool handleSend(char*, std::shared_ptr<ChatHistory>);
     // Run main GUI loop
-    void runImgui(std::shared_ptr<ChatHistory> history);
+    void runImgui(std::shared_ptr<ChatHistory>);
     // Init server/client based on user choice
-    void connectHelper(std::shared_ptr<ChatHistory> history);
+    void connectHelper(std::shared_ptr<ChatHistory>);
 };
 
 #endif /* GUI_H */
