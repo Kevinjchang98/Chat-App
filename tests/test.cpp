@@ -6,8 +6,10 @@
 
 #define private public
 #include "ChatMessage.h"
+#include "ChatHistory.h"
 #undef private
 
+// ChatMessage
 TEST_CASE("Empty message") {
     ChatMessage test = ChatMessage();
 
@@ -30,6 +32,7 @@ TEST_CASE("Empty constructor") {
 
 TEST_CASE("Two string constructor") {
     ChatMessage test = ChatMessage("message", "sender");
+    test.setTime();
 
     REQUIRE(test.getMessage() == "message");
     REQUIRE(test.getSender() == "sender");
@@ -67,4 +70,50 @@ TEST_CASE("Set time") {
     test.setTime();
 
     REQUIRE(test.getTimestamp() != "");
+}
+
+// ChatHistory
+TEST_CASE("Add message with content saves in history") {
+    ChatHistory test = ChatHistory();
+
+    REQUIRE(test.histVec.size() == 0);
+
+    test.addMessage("Test message", "Test sender");
+
+    REQUIRE(test.histVec.size() == 1);
+}
+
+TEST_CASE("Add empty message doesn't save in history") {
+    ChatHistory test = ChatHistory();
+
+    REQUIRE(test.histVec.size() == 0);
+
+    test.addMessage("", "Test sender");
+
+    REQUIRE(test.histVec.size() == 0);
+}
+
+TEST_CASE("Add message with empty sender saves in history") {
+    ChatHistory test = ChatHistory();
+
+    REQUIRE(test.histVec.size() == 0);
+
+    test.addMessage("Test message", "");
+
+    REQUIRE(test.histVec.size() == 1);
+}
+
+TEST_CASE("Has new message returns true then false") {
+    ChatHistory test = ChatHistory();
+    
+    test.addMessage("Test", "Test");
+
+    REQUIRE(test.hasNewMessage() == true);
+    REQUIRE(test.hasNewMessage() == false);
+}
+
+TEST_CASE("Has new message returns false with empty history") {
+    ChatHistory test = ChatHistory();
+
+    REQUIRE(test.hasNewMessage() == false);
 }
