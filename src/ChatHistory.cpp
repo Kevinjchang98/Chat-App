@@ -5,10 +5,12 @@ ChatHistory::ChatHistory() { oldSize = 0; }
 ChatHistory::~ChatHistory() {}
 
 void ChatHistory::addMessage(std::string message, std::string sender) {
-    ChatMessage newMessage;
-    newMessage.setTime(); 
-    newMessage.setMessage(message, sender);
-    histVec.push_back(newMessage);
+    if (message.size() > 0) {
+        ChatMessage newMessage;
+        newMessage.setTime();
+        newMessage.setMessage(message, sender);
+        histVec.push_back(newMessage);
+    }
 }
 
 std::vector<ChatMessage> ChatHistory::getChatHistory() { return histVec; }
